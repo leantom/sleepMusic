@@ -23,7 +23,7 @@ struct ZenMusicView: View {
         Sound(name: "Rainfall", icon: "cloud.rain"),
         Sound(name: "Sea", icon: "waveform.path.ecg")
     ]
-    
+    @State private var audioMixer: AudioMixer = AudioMixer(audioFileNames: [])
     let categories = SoundCategory.getCategories()
     
     // Filtered sounds based on selected category
@@ -41,7 +41,8 @@ struct ZenMusicView: View {
     @State private var selectedTab: String = "Sounds" // Track selected tab
 
     @State private var selectedCategory = "All" // Tracks the currently selected category
-
+    @State private var isControlPanelVisible: Bool = true // Track visibility of the control panel
+        
     var body: some View {
         ZStack {
             // Background Gradient
@@ -53,7 +54,7 @@ struct ZenMusicView: View {
                         .resizable()
                         .scaledToFill()
                         .edgesIgnoringSafeArea(.all)
-                        .opacity(0.2)
+                        
                 }
             
             VStack {
@@ -70,9 +71,11 @@ struct ZenMusicView: View {
                     
                     Spacer()
                     
-                   
+                    
                 }
-                Spacer()
+                
+                
+                
                 HStack(spacing: 0) {
                     // Sounds Button
                     Button(action: {
@@ -106,14 +109,13 @@ struct ZenMusicView: View {
                             .cornerRadius(20)
                     }
                 }
-                .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 20)
                         .fill(Color.black.opacity(0.2))
                 )
-                .padding(.horizontal)
+                .padding(.top, 100)
                 
-              
+                Spacer()
                 // Horizontal category selection
                 VStack {
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -121,9 +123,13 @@ struct ZenMusicView: View {
                             ForEach(categories) { category in
                                 Button(action: {
                                     // Update selected category
-                                    selectedCategory = category.name
+                                    withAnimation {
+                                        selectedCategory = category.name
+                                    }
+                                    
                                 }) {
                                     Text(category.name)
+                                        .font(.system(size: 14, weight: .regular))
                                         .padding(.horizontal, 16)
                                         .padding(.vertical, 8)
                                         .background(
@@ -145,80 +151,28 @@ struct ZenMusicView: View {
                     // Sound Option Buttons
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
                         ForEach(filteredSounds) { sound in
-                            SoundButton(sound: sound)
+                            SoundButton(sound: sound, audioMixer: $audioMixer)
                         }
                     }
                     .padding()
+                    .animation(.easeInOut)
                     Spacer()
                 }
-                .frame(height: 450)
-                             
+                .padding(.top, 30)
                 Spacer()
                 
-                // Music Player Controls
-                HStack(spacing: 20) {
-                    // Pause Button
-                    Button(action: {
-                        // Pause action
-                        print("Pause tapped")
-                    }) {
-                        Image(systemName: "pause.fill")
-                            .foregroundColor(.white)
-                            .padding(12)
-                            .background(Color.purple)
-                            .clipShape(Circle())
-                    }
-                    
-                    // Additional Buttons
-                    Button(action: {
-                        // Some other action
-                        print("Button 1 tapped")
-                    }) {
-                        Image(systemName: "rectangle.3.offgrid.fill")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                    
-                    Button(action: {
-                        // Another action
-                        print("Button 2 tapped")
-                    }) {
-                        Image(systemName: "heart.fill")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                    
-                    // Close Button
-                    Button(action: {
-                        // Close action
-                        print("Close tapped")
-                    }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                }
-                .padding(8)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.4))
-                )
-                .padding(.horizontal, 30) // Adjust padding as needed
                 
             }
+            
+            // Music Player Controls
+            CollapsibleControlPanel(audioMixer: $audioMixer)
         }
     }
 }
 
 struct SoundButton: View {
     let sound: Sound
-    @State private var audioMixer: AudioMixer? = nil
+    @Binding var audioMixer: AudioMixer
     
     @State private var isHighlighted = false // State to track highlight status
 
@@ -226,7 +180,14 @@ struct SoundButton: View {
         Button(action: {
             // Toggle highlight on button press
             isHighlighted.toggle()
-            playSound(sound: sound.audioFile ?? "") // Play the sound when pressed
+            if isHighlighted {
+                // Play the sound when selected
+                playSound(sound: sound.audioFile ?? "")
+            } else {
+                // Remove the sound when unselected
+                removeSound(sound: sound.audioFile ?? "")
+            }
+           
         }) {
             VStack {
                 Image(systemName: sound.icon) // Replace with your custom icons if needed
@@ -245,17 +206,18 @@ struct SoundButton: View {
     
     // Function to trigger sound
     func playSound(sound: String) {
-        if audioMixer == nil {
-            // Initialize AudioMixer with the selected sound
-            audioMixer = AudioMixer(audioFileNames: [sound])
-        } else {
-            // Add new sound to the mixer
-            audioMixer?.loadAudioFile(sound)
-        }
+        audioMixer.loadAudioFile(sound)
         
         // Play the sound using AudioMixer
-        audioMixer?.playMixedAudio()
+        audioMixer.playMixedAudio()
     }
+    
+    // Function to remove sound
+        func removeSound(sound: String) {
+            // Remove the sound from the AudioMixer
+            audioMixer.removeAudioFile(sound)
+        }
+    
 }
 
 struct ZenMusicView_Previews: PreviewProvider {

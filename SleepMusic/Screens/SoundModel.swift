@@ -23,7 +23,7 @@ struct Sound: Identifiable {
 
 struct SoundCategory: Identifiable {
     let id = UUID() // Unique ID for each category
-    let name: String // Category name (e.g., "Rain", "Water", etc.)
+    let name: String // Category name (e.g., "Nature", "White Noise", etc.)
     let sounds: [Sound] // List of Sound objects belonging to this category
     
     // Initialize with a category name and a list of sounds
@@ -32,77 +32,51 @@ struct SoundCategory: Identifiable {
         self.sounds = sounds
     }
     
+    // Function to get sounds for each specific category
+    func getSounds() -> [Sound] {
+        return sounds
+    }
+    
+    // Static categories for each type
+    static let natureSounds = SoundCategory(name: "Nature Sounds", sounds: [
+        Sound(name: "Rainfall", icon: "cloud.rain", audioFile: "rainfall"),
+        Sound(name: "Ocean Waves", icon: "waveform", audioFile: "ocean_waves"),
+        Sound(name: "Forest Sounds", icon: "leaf", audioFile: "forest_sounds"),
+        Sound(name: "Water Stream", icon: "drop.fill", audioFile: "water_stream"),
+        Sound(name: "Wind", icon: "wind", audioFile: "wind")
+    ])
+    
+    static let whitePinkNoise = SoundCategory(name: "White and Pink Noise", sounds: [
+        Sound(name: "White Noise", icon: "waveform.path.ecg", audioFile: "white_noise"),
+        Sound(name: "Pink Noise", icon: "waveform.path", audioFile: "pink_noise"),
+        Sound(name: "Brown Noise", icon: "waveform.path.ecg.rectangle", audioFile: "brown_noise")
+    ])
+    
+    static let instrumentalMusic = SoundCategory(name: "Instrumental Music", sounds: [
+        Sound(name: "Soft Piano", icon: "pianokeys", audioFile: "soft_piano"),
+        Sound(name: "Acoustic Guitar", icon: "guitars", audioFile: "acoustic_guitar"),
+        Sound(name: "Harp", icon: "harp", audioFile: "harp"),
+        Sound(name: "Ambient Pads", icon: "cloud", audioFile: "ambient_pads")
+    ])
+    
+    static let binauralBeats = SoundCategory(name: "Binaural Beats", sounds: [
+        Sound(name: "Delta Binaural Beats", icon: "circle.grid.cross", audioFile: "delta_beats"),
+        Sound(name: "Theta Binaural Beats", icon: "circle", audioFile: "delta_beats")
+    ])
+    
+    static let meditationSounds = SoundCategory(name: "Meditation Sounds", sounds: [
+        Sound(name: "Tibetan Singing Bowls", icon: "circle.hexagonpath.fill", audioFile: "tibetan_bowls"),
+        Sound(name: "Chimes", icon: "bell", audioFile: "chimes")
+    ])
+    
+    static let allSounds = SoundCategory(name: "All", sounds: [])
+    
+    // Function to get all sounds
+    static func getAllSounds() -> [Sound] {
+        return natureSounds.sounds + whitePinkNoise.sounds + instrumentalMusic.sounds + binauralBeats.sounds + meditationSounds.sounds
+    }
     
     static func getCategories() -> [SoundCategory] {
-           return [
-               SoundCategory(name: "All", sounds: [
-                    Sound(name: "Air Flow", icon: "wind", audioFile: "waves_close_up"),
-                    Sound(name: "Bird", icon: "bird", audioFile: "bird"),
-                   Sound(name: "Guitar", icon: "guitars")
-               ]),
-               SoundCategory(name: "Rain", sounds: [
-                   Sound(name: "Light Rain", icon: "cloud.drizzle.fill", audioFile: "rainfall"),
-                   Sound(name: "Heavy Rain", icon: "cloud.heavyrain.fill", audioFile: "rainfall")
-               ]),
-               SoundCategory(name: "Water", sounds: [
-                   Sound(name: "Creek", icon: "drop"),
-                   Sound(name: "Sea", icon: "waveform.path.ecg")
-               ]),
-               SoundCategory(name: "Wind", sounds: [
-                   Sound(name: "Breeze", icon: "wind"),
-                   Sound(name: "Typhoon", icon: "tornado")
-               ]),
-               SoundCategory(name: "Instrument", sounds: [
-                   Sound(name: "Guitar", icon: "guitars"),
-                   Sound(name: "Piano", icon: "pianokeys.inverse", audioFile: "piano"),
-                   Sound(name: "Harp", icon: "music.note")
-               ])
-           ]
-       }
-    func getSounds() -> [Sound] {
-        switch name {
-        case "Rain":
-            return rainSounds
-        case "Water":
-            return waterSounds
-        case "Instrument":
-            return instrumentSounds
-        case "Wind":
-            return windSounds
-        default:
-            return forestSounds
-        }
+        return [allSounds, natureSounds, whitePinkNoise, instrumentalMusic, binauralBeats, meditationSounds]
     }
-    
-     static func getAllSounds() -> [Sound] {
-        rainSounds + waterSounds + windSounds + instrumentSounds + forestSounds
-    }
-
-    
 }
-
-
-let rainSounds = [
-    Sound(name: "Light Rain", icon: "cloud.drizzle.fill", audioFile: "rainfall"),
-    Sound(name: "Heavy Rain", icon: "cloud.heavyrain.fill", audioFile: "rainfall")
-]
-
-let waterSounds = [
-    Sound(name: "Creek", icon: "drop", audioFile: "waves"),
-    Sound(name: "Sea", icon: "waveform.path.ecg", audioFile: "waves_close_up")
-]
- 
-let instrumentSounds = [
-    Sound(name: "Creek", icon: "drop", audioFile: "piano"),
-    Sound(name: "Sea", icon: "waveform.path.ecg", audioFile: "piano")
-]
-
-let windSounds = [
-    Sound(name: "Creek", icon: "drop", audioFile: "bird.mp3"),
-    Sound(name: "Sea", icon: "waveform.path.ecg", audioFile: "sea.mp3")
-]
-
-let forestSounds = [
-    Sound(name: "Creek", icon: "drop", audioFile: "creek"),
-    Sound(name: "Sea", icon: "waveform.path.ecg", audioFile: "sea")
-]
