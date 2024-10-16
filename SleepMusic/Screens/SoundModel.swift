@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Sound: Identifiable {
+struct Sound: Identifiable, Codable {
     let id = UUID() // Unique ID for each sound
     let name: String
     let icon: String
@@ -55,7 +55,7 @@ struct SoundCategory: Identifiable {
     static let instrumentalMusic = SoundCategory(name: "Instrumental Music", sounds: [
         Sound(name: "Soft Piano", icon: "pianokeys", audioFile: "soft_piano"),
         Sound(name: "Acoustic Guitar", icon: "guitars", audioFile: "acoustic_guitar"),
-        Sound(name: "Harp", icon: "harp", audioFile: "harp"),
+        Sound(name: "Harp", icon: "moon.dust", audioFile: "harp"),
         Sound(name: "Ambient Pads", icon: "cloud", audioFile: "ambient_pads")
     ])
     

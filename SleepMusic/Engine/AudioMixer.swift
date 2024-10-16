@@ -1,17 +1,27 @@
 import Foundation
 import AVFoundation
 
-class AudioMixer {
+class AudioMixer:ObservableObject {
     let engine = AVAudioEngine()
     var audioPlayers: [AVAudioPlayerNode] = []
     var audioBuffers: [AVAudioPCMBuffer] = []
     var volumeNodes: [AVAudioMixerNode] = []
-    var audioFileNames: [String] = []  // Parallel array to track file names
+    var audioFileNames: [String] = []
+    static let shared = AudioMixer(audioFileNames: [])
+    
+    @Published var isPlaying: Bool = false
     
     init(audioFileNames: [String]) {
         if audioFileNames.isEmpty {
             return
         }
+        for fileName in audioFileNames {
+            loadAudioFile(fileName)
+        }
+    }
+    
+    func loadAudioFiles(_ audioFileNames: [String]) {
+        self.audioFileNames.append(contentsOf: audioFileNames)
         for fileName in audioFileNames {
             loadAudioFile(fileName)
         }
@@ -48,9 +58,15 @@ class AudioMixer {
     
     func playMixedAudio() {
         do {
+            
+            // check audio player
+            if AudioPlayer.shared.isPlaying {
+                AudioPlayer.shared.pause()
+            }
+            configureAudioSession()
             // Start the audio engine
             try engine.start()
-            
+            self.isPlaying = true // Update when the engine starts playing
             // Play all audio files at the same time
             for (index, player) in audioPlayers.enumerated() {
                 let buffer = audioBuffers[index]
@@ -62,17 +78,34 @@ class AudioMixer {
         }
     }
     
+    func configureAudioSession() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to set up audio session: \(error.localizedDescription)")
+        }
+    }
+    
     func stopMixedAudio() {
         
         engine.stop()
+        self.isPlaying = false // Update when the engine stops
     }
     
     // Restart audio engine after stopping
     func restartMixedAudio() {
+        // check audio player
+        if AudioPlayer.shared.isPlaying {
+            AudioPlayer.shared.pause()
+        }
+        
+        if audioPlayers.isEmpty {return}
         if engine.isRunning {
             stopMixedAudio()
         }
-        
+        configureAudioSession()
+        self.isPlaying = true
         // Reconnect and re-schedule buffers before starting again
         do {
             for (index, player) in audioPlayers.enumerated() {

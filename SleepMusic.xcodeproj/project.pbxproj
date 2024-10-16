@@ -6,6 +6,16 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */; };
+		F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81782CBE540E00BBEE95 /* FirebaseAnalytics */; };
+		F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817A2CBE540E00BBEE95 /* FirebaseAuth */; };
+		F9DF817D2CBE540E00BBEE95 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817C2CBE540E00BBEE95 /* FirebaseCore */; };
+		F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817E2CBE540E00BBEE95 /* FirebaseCrashlytics */; };
+		F9DF81812CBE540E00BBEE95 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81802CBE540E00BBEE95 /* FirebaseFirestore */; };
+		F9DF81832CBE540E00BBEE95 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81822CBE540E00BBEE95 /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SleepMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +33,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */,
+				F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */,
+				F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */,
+				F9DF817D2CBE540E00BBEE95 /* FirebaseCore in Frameworks */,
+				F9DF81812CBE540E00BBEE95 /* FirebaseFirestore in Frameworks */,
+				F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */,
+				F9DF81832CBE540E00BBEE95 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +82,13 @@
 			);
 			name = SleepMusic;
 			packageProductDependencies = (
+				F9DF81782CBE540E00BBEE95 /* FirebaseAnalytics */,
+				F9DF817A2CBE540E00BBEE95 /* FirebaseAuth */,
+				F9DF817C2CBE540E00BBEE95 /* FirebaseCore */,
+				F9DF817E2CBE540E00BBEE95 /* FirebaseCrashlytics */,
+				F9DF81802CBE540E00BBEE95 /* FirebaseFirestore */,
+				F9DF81822CBE540E00BBEE95 /* FirebaseStorage */,
+				F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */,
 			);
 			productName = SleepMusic;
 			productReference = F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */;
@@ -94,6 +118,10 @@
 			);
 			mainGroup = F9BAD8A32CBC3FB5006F6095;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9BAD8AD2CBC3FB5006F6095 /* Products */;
 			projectDirPath = "";
@@ -258,8 +286,8 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -287,8 +315,8 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -324,6 +352,63 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.1.0;
+			};
+		};
+		F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.3.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+		F9DF81782CBE540E00BBEE95 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		F9DF817A2CBE540E00BBEE95 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F9DF817C2CBE540E00BBEE95 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		F9DF817E2CBE540E00BBEE95 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		F9DF81802CBE540E00BBEE95 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		F9DF81822CBE540E00BBEE95 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F9BAD8A42CBC3FB5006F6095 /* Project object */;
 }

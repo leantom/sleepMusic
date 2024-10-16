@@ -8,22 +8,9 @@
 import SwiftUI
 
 struct ZenMusicView: View {
-    
-    let sounds: [Sound] = [
-        Sound(name: "Air Flow", icon: "wind"), // Replace with actual SF symbols or custom icons
-        Sound(name: "Audio", icon: "waveform.path.ecg"),
-        Sound(name: "Bird", icon: "bird"),
-        Sound(name: "Breeze", icon: "wind"),
-        Sound(name: "Creek", icon: "drop"),
-        Sound(name: "Flood", icon: "cloud.rain.fill"),
-        Sound(name: "Guitar", icon: "guitars"),
-        Sound(name: "Harp", icon: "music.note"),
-        Sound(name: "Noise", icon: "speaker.wave.3.fill"),
-        Sound(name: "Play", icon: "play.circle.fill"),
-        Sound(name: "Rainfall", icon: "cloud.rain"),
-        Sound(name: "Sea", icon: "waveform.path.ecg")
-    ]
-    @State private var audioMixer: AudioMixer = AudioMixer(audioFileNames: [])
+    @ObservedObject var soundMixManager = SoundMixManager.shared
+    @State private var isSaveCombinationViewPresented = false
+    @ObservedObject var audioMixer: AudioMixer = AudioMixer.shared
     let categories = SoundCategory.getCategories()
     
     // Filtered sounds based on selected category
@@ -42,7 +29,9 @@ struct ZenMusicView: View {
 
     @State private var selectedCategory = "All" // Tracks the currently selected category
     @State private var isControlPanelVisible: Bool = true // Track visibility of the control panel
-        
+    @State private var animateOffset: CGFloat = 0
+    @State private var isRelaxingMusicViewPresented = false // New state variable
+       
     var body: some View {
         ZStack {
             // Background Gradient
@@ -58,62 +47,62 @@ struct ZenMusicView: View {
                 }
             
             VStack {
-                // Top Section: Foreground image and Upgrade button
-                HStack {
-                    Button(action: {
-                        // Upgrade action
-                    }) {
-                        Image(systemName: "star.circle")
-                            .font(.title)
-                            .foregroundColor(.white)
-                    }
-                    .padding(.leading)
-                    
-                    Spacer()
-                    
-                    
-                }
-                
-                
                 
                 HStack(spacing: 0) {
-                    // Sounds Button
-                    Button(action: {
-                        selectedTab = "Sounds"
-                    }) {
-                        Text("Sounds")
-                            .font(.headline)
-                            .foregroundColor(selectedTab == "Sounds" ? .white : .gray)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(
-                                selectedTab == "Sounds" ? Color.purple : Color.clear
-                            )
-                            .cornerRadius(20)
+                        // Sounds Button
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedTab = "Sounds"
+                               
+                            }
+                        }) {
+                            ZStack {
+                                Rectangle()
+                                    .fill( selectedTab == "Sounds" ? Color.purple : Color.clear)
+                                    .cornerRadius(20)
+                                    .opacity(selectedTab == "Sounds" ? 1 : 0)
+                                    .offset(x: selectedTab == "Sounds" ? 0 : 200)
+                                
+                                Text("Sounds")
+                                    .font(.headline)
+                                    .foregroundColor(selectedTab == "Sounds" ? .white : .gray)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 10)
+                                
+                            }
+                        }
+                        
+                        Spacer().frame(width: 10)
+                        
+                        // Saved Button
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                selectedTab = "Saved"
+                                isSaveCombinationViewPresented.toggle()
+                            }
+                        }) {
+                            ZStack {
+                                Rectangle()
+                                    .fill( selectedTab == "Saved" ? Color.purple : Color.clear)
+                                    .cornerRadius(20)
+                                    .opacity(selectedTab == "Saved" ? 1 : 0)
+                                    .offset(x: selectedTab == "Saved" ? 0 : -200)
+                                
+                                Text("Saved")
+                                    .font(.headline)
+                                    .foregroundColor(selectedTab == "Saved" ? .white : .gray)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 10)
+                            }
+                        }
                     }
-                    
-                    Spacer().frame(width: 10)
-                    
-                    // Saved Button
-                    Button(action: {
-                        selectedTab = "Saved"
-                    }) {
-                        Text("Saved")
-                            .font(.headline)
-                            .foregroundColor(selectedTab == "Saved" ? .white : .gray)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(
-                                selectedTab == "Saved" ? Color.purple : Color.clear
-                            )
-                            .cornerRadius(20)
-                    }
-                }
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.black.opacity(0.2))
-                )
-                .padding(.top, 100)
+                    .background(
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.black.opacity(0.2))
+                    )
+                    .padding(.top, 100)
+                    .padding(.horizontal)
+                    .frame(height: 126)
                 
                 Spacer()
                 // Horizontal category selection
@@ -148,10 +137,11 @@ struct ZenMusicView: View {
                         }
                         .padding(.horizontal)
                     }
+                    .padding()
                     // Sound Option Buttons
                     LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
                         ForEach(filteredSounds) { sound in
-                            SoundButton(sound: sound, audioMixer: $audioMixer)
+                            SoundButton(sound: sound, audioMixer: audioMixer)
                         }
                     }
                     .padding()
@@ -161,47 +151,97 @@ struct ZenMusicView: View {
                 .padding(.top, 30)
                 Spacer()
                 
-                
+                // Music Player Controls
+                CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented)
+                    .padding()
+                Spacer()
             }
             
-            // Music Player Controls
-            CollapsibleControlPanel(audioMixer: $audioMixer)
+        }
+        .fullScreenCover(isPresented: $isRelaxingMusicViewPresented) {
+            RelaxingMusicView()
+        }
+        .sheet(isPresented: $isSaveCombinationViewPresented) {
+            SaveCombinationView(isPresented: $isSaveCombinationViewPresented, audioMixer: audioMixer)
         }
     }
 }
 
 struct SoundButton: View {
     let sound: Sound
-    @Binding var audioMixer: AudioMixer
+    @ObservedObject var audioMixer: AudioMixer
     
     @State private var isHighlighted = false // State to track highlight status
+    @State private var dragOffset: CGSize = .zero
 
     var body: some View {
-        Button(action: {
-            // Toggle highlight on button press
-            isHighlighted.toggle()
-            if isHighlighted {
-                // Play the sound when selected
-                playSound(sound: sound.audioFile ?? "")
-            } else {
-                // Remove the sound when unselected
-                removeSound(sound: sound.audioFile ?? "")
-            }
-           
-        }) {
+        
+        
+        
+        ZStack {
+//            LinearGradient(
+//                gradient: Gradient(colors: isHighlighted ? gradientColorsBasedOnOffset() : [Color.gray.opacity(0.3), Color.gray.opacity(0.1)]),
+//                startPoint: .topLeading,
+//                endPoint: .bottomTrailing
+//            )
+//            .frame(width: 80, height: min(100 + dragOffset.height, 100))
+                        
             VStack {
-                Image(systemName: sound.icon) // Replace with your custom icons if needed
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .foregroundColor(isHighlighted ? .yellow.opacity(0.6) : .gray) // Highlight color on press
-                Text(sound.name)
-                    .foregroundColor(.white)
-                    .font(.caption)
+                Spacer()
+                Rectangle()
+                    .fill(LinearGradient(
+                        gradient: Gradient(colors: isHighlighted ? [Color.purple.opacity(0.6), Color.gray.opacity(0.1)] : [Color.gray.opacity(0.3), Color.gray.opacity(0.1)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 80, height: isHighlighted ? min(100 - dragOffset.height, 100) : 100)
+                    .cornerRadius(10)
+                    .shadow(radius: 10)
+                
+                    
             }
-            .frame(width: 80, height: 100)
-            .background(isHighlighted ? Color.purple.opacity(0.7) : Color.gray.opacity(0.3)) // Background changes when highlighted
-            .cornerRadius(12)
+            Button(action: {
+                // Toggle highlight on button press
+                isHighlighted.toggle()
+                if isHighlighted {
+                    // Play the sound when selected
+                    playSound(sound: sound.audioFile ?? "")
+                } else {
+                    // Remove the sound when unselected
+                    removeSound(sound: sound.audioFile ?? "")
+                }
+                
+            }) {
+                VStack(spacing: 10) {
+                    Image(systemName: sound.icon) // Replace with your custom icons if needed
+                        .font(.system(size: 20))
+                        .foregroundColor(isHighlighted ? .white : .gray) // Highlight color on press
+                    Text(sound.name)
+                        .foregroundColor(.white)
+                        .font(.caption)
+                }
+                .frame(width: 80, height: 100)
+                .cornerRadius(12)
+                .gesture(
+                    DragGesture()
+                        .onChanged { gesture in
+                            self.dragOffset = CGSize(width: 0, height: gesture.translation.height)
+                        }
+                        .onEnded { _ in
+                            // Optionally, add logic to snap back or limit movement
+                        }
+                )
+            }
         }
+        .frame(height: 100)
+    }
+    
+    func gradientColorsBasedOnOffset() -> [Color] {
+        let offsetFactor = dragOffset.height / 300 // Adjust the divisor to control sensitivity
+        let startColor = Color.purple.opacity(0.7 - Double(offsetFactor)) // Start color becomes darker as you drag
+        let endColor = Color.blue.opacity(0.7 + Double(offsetFactor)) // End color becomes lighter as you drag
+        
+        return [startColor, endColor]
     }
     
     // Function to trigger sound

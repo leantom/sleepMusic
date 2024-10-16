@@ -9,14 +9,12 @@ import SwiftUI
 
 struct RelaxingMusicView: View {
     
-    let songs = [
-            ("Lantern Festival", "Gloria", "img_1"),
-            ("Magical City", "Regina", "img_2"),
-            ("Deep Sleep", "Jenny", "img_3"),
-            ("Tropical Vibes", "Alene", "img_4")
-        ]
-    var totalSongs: String = "12 Songs"
-    var duration: String = "1 hr 32 min"
+    
+    @State var isPlaying: Bool = false
+    @ObservedObject var tracklistManager = TracklistManager.shared
+    @State var selectedTracklist: Tracklist?
+    @Environment(\.dismiss) var dismiss
+    @ObservedObject var objectState: UIStateModel = UIStateModel()
     
     var body: some View {
         ZStack {
@@ -28,92 +26,173 @@ struct RelaxingMusicView: View {
             )
             .edgesIgnoringSafeArea(.all)
             
-            ScrollView(.vertical, showsIndicators: false) {
+            
+            VStack {
                 VStack {
-                    // Top Title
-                    Text("RELAXING ZEN MUSIC")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .padding(.top, 40)
-                    
-                    // Album Art Section
-                    CarouselView()
-                        .frame(height: 300)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .padding(.vertical, 20)
-                    
-                    // Control Buttons
-                    MediaControlView()
-                    .padding(.bottom, 20)
-                    
                     HStack {
-                        HStack(spacing: 5) {
-                            Image(systemName: "music.note")
+                        ZStack {
+                            Text("RELAXING ZEN MUSIC")
+                                .font(.caption)
                                 .foregroundColor(.white)
+                                .padding(.top)
+                            HStack {
+                                Button {
+                                   dismiss()
+                                } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 20))
+                                        .frame(width: 35, height: 35)
+                                        .foregroundColor(.white)
+                                        .background(Color(red: 0.104, green: 0.082, blue: 0.243))
+                                        .clipShape(Circle())
+                                        .shadow(color: .gray, radius: 5, x: 2, y: 2)
+                                }
+                                .padding()
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                // Album Art Section
+                SnapCarousel(tracklists: tracklistManager.tracklists, selectedTracklist: $selectedTracklist)
+                    .environmentObject(objectState)
+                    .frame(height: 300)
+                    .clipShape(RoundedRectangle(cornerRadius: 20))
+                    .padding(.vertical, 20)
+                
+                // Control Buttons
+                MediaControlView()
+                    .padding(.bottom, 20)
+                ScrollView(.vertical, showsIndicators: false) {
+                    HStack {
+                        HStack(spacing: 10) {
+                            Image(systemName: "music.note")
+                                .foregroundColor(.black)
+                                .frame(width: 20)
+                                .background(Color.white)
+                                .cornerRadius(5)
+                            if let selectedTracklist = selectedTracklist,
+                               let songs = selectedTracklist.numberOfTracks {
+                                Text("\(songs) songs")
+                                    .foregroundColor(.white)
+                                    .font(.subheadline)
+                            }
                             
-                            Text(totalSongs)
+                        }
+                        
+                        Spacer()
+                        if let selectedTracklist = selectedTracklist {
+                            Text(formatSecondsToHoursMinutes(selectedTracklist.totalDuration))
                                 .foregroundColor(.white)
                                 .font(.subheadline)
                         }
                         
-                        Spacer()
-                        
-                        Text(duration)
-                            .foregroundColor(.white)
-                            .font(.subheadline)
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 10)
                     .background(Color.black.opacity(0.2))
                     .cornerRadius(10)
-                    // Song List Section
-                    VStack(spacing: 10) {
-                        ForEach(songs, id: \.0) { song in
-                            SongRow(songTitle: song.0, artist: song.1, artwork: song.2)
+                    if let _ = selectedTracklist {
+                        VStack(spacing: 10) {
+                            ForEach(filteredTracks) { track in
+                                SongRow(track: track)
+                            }
                         }
+                        .padding()
+                    } else {
+                        // Optional: Placeholder when no tracklist is selected
+                        Text("Select a tracklist to view tracks")
+                            .foregroundColor(.white)
+                            .padding()
                     }
-                    .padding()
+                    
                 }
+                .padding(.top)
+            }
+            
+            // Top Title
+            
+        }
+        .onAppear {
+            Task {
+                try await tracklistManager.fetchAllTracklists()
+                selectedTracklist = tracklistManager.tracklists.first
+                AudioPlayer.shared.setTracks(filteredTracks)
             }
         }
+        .onChange(of: objectState.activeCard) { oldTracklist, newTracklist in
+                    // Perform any additional actions when selectedTracklist changes
+            selectedTracklist = tracklistManager.tracklists[newTracklist]
+            AudioPlayer.shared.setTracks(filteredTracks)
+        }
+    }
+    
+    
+    
+    
+    // Computed property to filter tracks by selectedTracklist
+    private var filteredTracks: [Track] {
+        guard let selectedID = selectedTracklist?.id else { return [] }
+        return tracklistManager.allTracks.filter { $0.tracklistID == selectedID }
     }
 }
 
 struct SongRow: View {
-    var songTitle: String
-    var artist: String
-    var artwork: String
-    
+    var track: Track
+
     var body: some View {
-            HStack {
-                // Artwork Image
-                Image(artwork)
+        HStack {
+            // Artwork Image (if available)
+            if let artworkURL = track.artWorkURL, let url = URL(string: artworkURL) {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    ProgressView()
+                }
+                .frame(width: 50, height: 50)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            } else {
+                // Placeholder image
+                Image("img_1")
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 50, height: 50)
+                    .foregroundColor(.white)
+                    .background(Color.gray)
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                
-                // Song title and artist
-                VStack(alignment: .leading) {
-                    Text(songTitle)
-                        .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Text(artist)
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
-                }
-                Spacer()
             }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.black.opacity(0.2)) // Adjust the background opacity and color
-                    .shadow(radius: 5) // Add shadow to mimic depth
-            )
-            .padding(.horizontal)
+
+            // Song title and duration
+            VStack(alignment: .leading) {
+                Text(track.name)
+                    .font(.headline)
+                    .foregroundColor(.white)
+
+                Text("Duration: \(trackDurationString(duration: track.duration))")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+            }
+            Spacer()
         }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(Color.black.opacity(0.2))
+                .shadow(radius: 5)
+        )
+        .padding(.horizontal)
+    }
+
+    // Helper function to format duration
+    private func trackDurationString(duration: Int) -> String {
+        let minutes = duration / 60
+        let seconds = duration % 60
+        return "\(minutes)m \(seconds)s"
+    }
 }
+
 
 #Preview {
     RelaxingMusicView()
