@@ -12,7 +12,7 @@ struct ZenMusicView: View {
     @State private var isSaveCombinationViewPresented = false
     @ObservedObject var audioMixer: AudioMixer = AudioMixer.shared
     let categories = SoundCategory.getCategories()
-    
+    @State private var inputText: String = ""
     // Filtered sounds based on selected category
     var filteredSounds: [Sound] {
         if selectedCategory == "All" {
@@ -31,7 +31,8 @@ struct ZenMusicView: View {
     @State private var isControlPanelVisible: Bool = true // Track visibility of the control panel
     @State private var animateOffset: CGFloat = 0
     @State private var isRelaxingMusicViewPresented = false // New state variable
-       
+    
+    
     var body: some View {
         ZStack {
             // Background Gradient
@@ -48,12 +49,24 @@ struct ZenMusicView: View {
             
             VStack {
                 
-                HStack(spacing: 0) {
+                Spacer()
+                
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text("For when counting sheep isn’t enough.")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .padding()
+                    }
+                    HStack(spacing: 0) {
+                        
                         // Sounds Button
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedTab = "Sounds"
-                               
                             }
                         }) {
                             ZStack {
@@ -78,7 +91,6 @@ struct ZenMusicView: View {
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedTab = "Saved"
-                                isSaveCombinationViewPresented.toggle()
                             }
                         }) {
                             ZStack {
@@ -100,71 +112,113 @@ struct ZenMusicView: View {
                         RoundedRectangle(cornerRadius: 20)
                             .fill(Color.black.opacity(0.2))
                     )
-                    .padding(.top, 100)
+                    .frame(height: 48)
                     .padding(.horizontal)
-                    .frame(height: 126)
-                
-                Spacer()
-                // Horizontal category selection
+                }
+                .padding(.top, 44)
+                //MARK: Horizontal category selection
                 VStack {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(categories) { category in
-                                Button(action: {
-                                    // Update selected category
-                                    withAnimation {
-                                        selectedCategory = category.name
+                        //MARK: selected tab
+                        if selectedTab == "Saved" {
+                            HStack {
+                                Text("Your Saved Songs")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .padding(.horizontal)
+                                    .foregroundStyle(.white)
+                            }
+                        } else {
+                            HStack(spacing: 16) {
+                                ForEach(categories) { category in
+                                    Button(action: {
+                                        //MARK: Update selected category
+                                        withAnimation {
+                                            selectedCategory = category.name
+                                        }
+                                        
+                                    }) {
+                                        Text(category.name)
+                                            .font(.system(size: 14, weight: .regular))
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                selectedCategory == category.name ? Color.purple : Color.clear
+                                            )
+                                            .foregroundColor(
+                                                selectedCategory == category.name ? .white : .gray
+                                            )
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 20)
+                                                    .stroke(Color.purple, lineWidth: 1)
+                                            )
+                                            .cornerRadius(20)
                                     }
-                                    
-                                }) {
-                                    Text(category.name)
-                                        .font(.system(size: 14, weight: .regular))
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                        .background(
-                                            selectedCategory == category.name ? Color.purple : Color.clear
-                                        )
-                                        .foregroundColor(
-                                            selectedCategory == category.name ? .white : .gray
-                                        )
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: 20)
-                                                .stroke(Color.purple, lineWidth: 1)
-                                        )
-                                        .cornerRadius(20)
                                 }
                             }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
+                        
                     }
                     .padding()
-                    // Sound Option Buttons
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
-                        ForEach(filteredSounds) { sound in
-                            SoundButton(sound: sound, audioMixer: audioMixer)
+                    //MARK: Sound Option Buttons
+                    if selectedTab == "Saved" {
+                        
+                        VStack(spacing: 10) {
+                            if soundMixManager.savedCombinations.isEmpty {
+                                Text("No saved combinations yet.")
+                                    .font(.system(size: 14, weight: .regular, design: .monospaced))
+                                    .foregroundStyle(.white)
+                            } else {
+                                ForEach(soundMixManager.savedCombinations) { track in
+                                    SoundMixRow(soundMix: track, onDelete: {
+                                        delete(soundMix: track)
+                                    })
+                                    .transition(.slide)
+                                }
+                            }
+                            
                         }
+                        .padding()
+                        .animation(.easeInOut)
+                    } else {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
+                            ForEach(filteredSounds) { sound in
+                                SoundButton(sound: sound, audioMixer: audioMixer)
+                            }
+                        }
+                        .padding()
+                        .animation(.easeInOut)
                     }
-                    .padding()
-                    .animation(.easeInOut)
+                    
                     Spacer()
                 }
-                .padding(.top, 30)
-                Spacer()
                 
-                // Music Player Controls
-                CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented)
-                    .padding()
                 Spacer()
             }
-            
+            VStack {
+                Spacer()
+                
+                //MARK: --  Music Player Controls
+                CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented,
+                                        isSavedViewPresented: $isSaveCombinationViewPresented)
+                    .padding()
+            }
         }
         .fullScreenCover(isPresented: $isRelaxingMusicViewPresented) {
             RelaxingMusicView()
         }
-        .sheet(isPresented: $isSaveCombinationViewPresented) {
-            SaveCombinationView(isPresented: $isSaveCombinationViewPresented, audioMixer: audioMixer)
+        .fullScreenCover(isPresented: $isSaveCombinationViewPresented) {
+            SleepMixView(sounds: $audioMixer.selectedSounds)
         }
+       
     }
+    
+    private func delete(soundMix: SoundMix) {
+           withAnimation {
+               SoundMixManager.shared.removeCombination(soundMix: soundMix)
+           }
+    }
+    
 }
 
 struct SoundButton: View {
@@ -201,16 +255,15 @@ struct SoundButton: View {
                     
             }
             Button(action: {
-                // Toggle highlight on button press
+                //MARK: Toggle highlight on button press
                 isHighlighted.toggle()
                 if isHighlighted {
-                    // Play the sound when selected
+                    //MARK: Play the sound when selected
                     playSound(sound: sound.audioFile ?? "")
                 } else {
-                    // Remove the sound when unselected
+                    //MARK: Remove the sound when unselected
                     removeSound(sound: sound.audioFile ?? "")
                 }
-                
             }) {
                 VStack(spacing: 10) {
                     Image(systemName: sound.icon) // Replace with your custom icons if needed
@@ -244,19 +297,25 @@ struct SoundButton: View {
         return [startColor, endColor]
     }
     
-    // Function to trigger sound
+    //MARK:  Function to trigger sound
     func playSound(sound: String) {
+        if audioMixer.isPlaySaved {
+            audioMixer.resetMixedAudio()
+        }
         audioMixer.loadAudioFile(sound)
-        
+        audioMixer.selectedSounds.append(self.sound)
         // Play the sound using AudioMixer
         audioMixer.playMixedAudio()
     }
     
-    // Function to remove sound
-        func removeSound(sound: String) {
-            // Remove the sound from the AudioMixer
-            audioMixer.removeAudioFile(sound)
+    //MARK:  Function to remove sound
+    func removeSound(sound: String) {
+        // Remove the sound from the AudioMixer
+        audioMixer.removeAudioFile(sound)
+        audioMixer.selectedSounds.removeAll { sound1 in
+            return sound1.id == self.sound.id
         }
+    }
     
 }
 

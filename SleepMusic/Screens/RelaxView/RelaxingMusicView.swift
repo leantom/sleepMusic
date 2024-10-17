@@ -56,13 +56,13 @@ struct RelaxingMusicView: View {
                 // Album Art Section
                 SnapCarousel(tracklists: tracklistManager.tracklists, selectedTracklist: $selectedTracklist)
                     .environmentObject(objectState)
-                    .frame(height: 300)
+                    .frame(height: 250)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.vertical, 20)
-                
+                    
                 // Control Buttons
                 MediaControlView()
-                    .padding(.bottom, 20)
+                    .frame(height: 88)
                 ScrollView(.vertical, showsIndicators: false) {
                     HStack {
                         HStack(spacing: 10) {
@@ -99,6 +99,7 @@ struct RelaxingMusicView: View {
                             }
                         }
                         .padding()
+                        .animation(.easeInOut)
                     } else {
                         // Optional: Placeholder when no tracklist is selected
                         Text("Select a tracklist to view tracks")
@@ -127,9 +128,6 @@ struct RelaxingMusicView: View {
         }
     }
     
-    
-    
-    
     // Computed property to filter tracks by selectedTracklist
     private var filteredTracks: [Track] {
         guard let selectedID = selectedTracklist?.id else { return [] }
@@ -139,7 +137,10 @@ struct RelaxingMusicView: View {
 
 struct SongRow: View {
     var track: Track
-
+    @State var isPlaying: Bool = false
+    // Observe the shared AudioPlayer
+    @ObservedObject var audioPlayer = AudioPlayer.shared
+        
     var body: some View {
         HStack {
             // Artwork Image (if available)
@@ -169,20 +170,37 @@ struct SongRow: View {
                 Text(track.name)
                     .font(.headline)
                     .foregroundColor(.white)
-
+                
                 Text("Duration: \(trackDurationString(duration: track.duration))")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
             Spacer()
+            
+            Image(systemName: "chevron.right")
+                .foregroundStyle(.white.opacity(0.3))
+                .font(.system(size: 15))
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.black.opacity(0.2))
+                .fill(Color.white.opacity(0.1))
                 .shadow(radius: 5)
         )
+        .overlay(content: {
+            if audioPlayer.currentTrack  == track {
+                HStack {
+                    Spacer()
+                    LoadingView()
+                        .frame(width: 150)
+                }
+            }
+        })
         .padding(.horizontal)
+        .onTapGesture {
+            isPlaying.toggle()
+            AudioPlayer.shared.playTrack(for: track)
+        }
     }
 
     // Helper function to format duration

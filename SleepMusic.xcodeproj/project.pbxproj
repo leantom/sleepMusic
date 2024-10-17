@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */; };
 		F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */; };
 		F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81782CBE540E00BBEE95 /* FirebaseAnalytics */; };
 		F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817A2CBE540E00BBEE95 /* FirebaseAuth */; };
@@ -37,6 +38,7 @@
 				F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */,
 				F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */,
 				F9DF817D2CBE540E00BBEE95 /* FirebaseCore in Frameworks */,
+				F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */,
 				F9DF81812CBE540E00BBEE95 /* FirebaseFirestore in Frameworks */,
 				F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */,
 				F9DF81832CBE540E00BBEE95 /* FirebaseStorage in Frameworks */,
@@ -89,6 +91,7 @@
 				F9DF81802CBE540E00BBEE95 /* FirebaseFirestore */,
 				F9DF81822CBE540E00BBEE95 /* FirebaseStorage */,
 				F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */,
+				F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */,
 			);
 			productName = SleepMusic;
 			productReference = F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */;
@@ -121,6 +124,7 @@
 			packageReferences = (
 				F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9BAD8AD2CBC3FB5006F6095 /* Products */;
@@ -354,6 +358,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.1.2;
+			};
+		};
 		F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -373,6 +385,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
+			productName = SDWebImageSwiftUI;
+		};
 		F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */;

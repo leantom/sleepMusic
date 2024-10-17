@@ -9,16 +9,18 @@ import SwiftUI
 
 struct Sound: Identifiable, Codable {
     let id = UUID() // Unique ID for each sound
-    let name: String
-    let icon: String
-    let audioFile: String? // Optional: Add the sound file name if you have it
-    
-    // Initialize sound with name and icon
-    init(name: String, icon: String, audioFile: String? = nil) {
-        self.name = name
-        self.icon = icon
-        self.audioFile = audioFile
-    }
+        let name: String
+        let icon: String
+        let audioFile: String? // Optional: Add the sound file name if you have it
+        var volume: Double // Add a volume property
+        
+        // Initialize sound with name, icon, and volume
+        init(name: String, icon: String, audioFile: String? = nil, volume: Double = 0.5) {
+            self.name = name
+            self.icon = icon
+            self.audioFile = audioFile
+            self.volume = volume
+        }
 }
 
 struct SoundCategory: Identifiable {

@@ -58,6 +58,24 @@ class AudioPlayer: ObservableObject {
         isPlaying = true
     }
     
+    func playTrack(for track: Track) {
+        guard let index = tracks.firstIndex(of: track) else {return}
+        currentIndex = index
+        currentTrack = tracks[currentIndex]
+        guard let url = URL(string: currentTrack?.audioFileURL ?? "") else {
+            print("Invalid audio URL")
+            return
+        }
+        if AudioMixer.shared.isPlaying {
+            AudioMixer.shared.stopMixedAudio()
+        }
+        
+        player = AVPlayer(url: url)
+        player?.play()
+        isPlaying = true
+    }
+    
+    
     func play() {
         if AudioMixer.shared.isPlaying {
             AudioMixer.shared.stopMixedAudio()
@@ -121,6 +139,12 @@ class AudioPlayer: ObservableObject {
     }
     
     @objc private func playerDidFinishPlaying() {
+        if AudioMixer.shared.isPlaying {
+            return
+        }
+        if tracks.isEmpty {
+            return
+        }
         if isRepeatEnabled {
             playTrack(at: currentIndex)
         } else {

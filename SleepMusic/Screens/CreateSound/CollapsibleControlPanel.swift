@@ -3,8 +3,9 @@ import SwiftUI
 struct CollapsibleControlPanel: View {
     @State private var isExpanded: Bool = false // Track whether the panel is expanded or collapsed
     @ObservedObject var audioMixer: AudioMixer
-    @Binding var isRelaxingMusicViewPresented: Bool // New binding property
-        
+    @Binding var isRelaxingMusicViewPresented: Bool
+    @Binding var isSavedViewPresented: Bool
+    
     @State var isPlaying: Bool = false
     
     var body: some View {
@@ -37,7 +38,9 @@ struct CollapsibleControlPanel: View {
                 if isExpanded {
                     // Additional Buttons (Visible when expanded)
                     Button(action: {
-                        isRelaxingMusicViewPresented.toggle()
+                        withAnimation {
+                            isRelaxingMusicViewPresented.toggle()
+                        }
                     }) {
                         Image(systemName: "rectangle.3.offgrid.fill")
                             .foregroundColor(.white)
@@ -47,9 +50,14 @@ struct CollapsibleControlPanel: View {
                     }
                     
                     Button(action: {
-                        print("Button 2 tapped")
+                        withAnimation {
+                            if AudioMixer.shared.selectedSounds.count == 0 {
+                                return
+                            }
+                            isSavedViewPresented.toggle()
+                        }
                     }) {
-                        Image(systemName: "heart.fill")
+                        Image(systemName: AudioMixer.shared.selectedSounds.count > 0 ? "arrow.down.heart.fill" : "heart")
                             .foregroundColor(.white)
                             .padding(8)
                             .background(Color.gray.opacity(0.2))
@@ -85,9 +93,9 @@ struct WrapperCollapsibleControlView: View {
     @ObservedObject  var audioMixer: AudioMixer = AudioMixer(audioFileNames: [])
     @State var isplaying: Bool = false
     @State var isRelaxingMusicViewPresented: Bool = false  // New binding property
-        
+    @State var isShow: Bool = false
     var body: some View {
-        CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented)
+        CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented, isSavedViewPresented: $isShow)
     }
 }
 

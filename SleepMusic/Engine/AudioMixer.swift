@@ -8,8 +8,9 @@ class AudioMixer:ObservableObject {
     var volumeNodes: [AVAudioMixerNode] = []
     var audioFileNames: [String] = []
     static let shared = AudioMixer(audioFileNames: [])
-    
+    @Published var selectedSounds: [Sound] = []
     @Published var isPlaying: Bool = false
+    @Published var isPlaySaved: Bool = false
     
     init(audioFileNames: [String]) {
         if audioFileNames.isEmpty {
@@ -24,6 +25,13 @@ class AudioMixer:ObservableObject {
         self.audioFileNames.append(contentsOf: audioFileNames)
         for fileName in audioFileNames {
             loadAudioFile(fileName)
+        }
+    }
+    
+    func loadAudioFilesSound(_ sounds: [Sound]) {
+        for sound in sounds {
+            self.audioFileNames.append(sound.audioFile ?? "")
+            loadAudioFile(sound.audioFile ?? "")
         }
     }
     
@@ -91,6 +99,14 @@ class AudioMixer:ObservableObject {
         
         engine.stop()
         self.isPlaying = false // Update when the engine stops
+    }
+    //MARK: -- reset mixed audio
+    func resetMixedAudio() {
+        stopMixedAudio()
+        audioFileNames.removeAll()
+        audioPlayers.removeAll()
+        audioBuffers.removeAll()
+        isPlaySaved = false
     }
     
     // Restart audio engine after stopping

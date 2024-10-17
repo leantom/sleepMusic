@@ -11,7 +11,7 @@ struct SoundMix: Identifiable, Codable {
     var name: String
     var sounds: [Sound]
     var dateSaved: Date
-    init(id: UUID = UUID(), name: String, sounds: [Sound], dateSaved: Date) {
+    init(id: UUID = UUID(), name: String, sounds: [Sound], dateSaved: Date = Date()) {
         self.id = id
         self.name = name
         self.sounds = sounds
@@ -29,7 +29,7 @@ class SoundMixManager: ObservableObject {
     init() {
         load()
     }
-    
+    //MARK: - Load saved mixes from UserDefaults
     func load() {
         if let data = UserDefaults.standard.data(forKey: key),
            let combinations = try? JSONDecoder().decode([SoundMix].self, from: data) {
@@ -54,4 +54,12 @@ class SoundMixManager: ObservableObject {
         savedCombinations.remove(atOffsets: offsets)
         save()
     }
+    
+    func removeCombination(soundMix: SoundMix) {
+        savedCombinations.removeAll { sound in
+            return sound.id == soundMix.id
+        }
+        save()
+    }
+    
 }

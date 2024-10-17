@@ -19,7 +19,7 @@ struct Tracklist: Identifiable, Codable, Equatable {
 }
 
 // Track model
-struct Track: Identifiable, Codable {
+struct Track: Identifiable, Codable, Equatable {
     @DocumentID var id: String?             // Firestore document ID
     let name: String                        // Name of the track
     let duration: Int                       // Duration of the track in seconds
