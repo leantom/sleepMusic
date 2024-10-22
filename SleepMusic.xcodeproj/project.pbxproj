@@ -15,15 +15,29 @@
 		F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817E2CBE540E00BBEE95 /* FirebaseCrashlytics */; };
 		F9DF81812CBE540E00BBEE95 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81802CBE540E00BBEE95 /* FirebaseFirestore */; };
 		F9DF81832CBE540E00BBEE95 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81822CBE540E00BBEE95 /* FirebaseStorage */; };
+		F9F712B82CC17787008A6260 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = F9F712B72CC17787008A6260 /* FirebaseRemoteConfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SleepMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F9F712BA2CC17C99008A6260 /* Exceptions for "SleepMusic" folder in "SleepMusic" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F9BAD8AB2CBC3FB5006F6095 /* SleepMusic */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F9BAD8AE2CBC3FB5006F6095 /* SleepMusic */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F9F712BA2CC17C99008A6260 /* Exceptions for "SleepMusic" folder in "SleepMusic" target */,
+			);
 			path = SleepMusic;
 			sourceTree = "<group>";
 		};
@@ -34,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9F712B82CC17787008A6260 /* FirebaseRemoteConfig in Frameworks */,
 				F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */,
 				F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */,
 				F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */,
@@ -92,6 +107,7 @@
 				F9DF81822CBE540E00BBEE95 /* FirebaseStorage */,
 				F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */,
 				F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */,
+				F9F712B72CC17787008A6260 /* FirebaseRemoteConfig */,
 			);
 			productName = SleepMusic;
 			productReference = F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */;
@@ -287,11 +303,15 @@
 				DEVELOPMENT_TEAM = 58JMRW9E5N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SleepMusic/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SleepLoom;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -316,11 +336,15 @@
 				DEVELOPMENT_TEAM = 58JMRW9E5N;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SleepMusic/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SleepLoom;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -424,6 +448,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseStorage;
+		};
+		F9F712B72CC17787008A6260 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

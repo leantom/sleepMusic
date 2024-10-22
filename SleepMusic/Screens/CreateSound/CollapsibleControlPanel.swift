@@ -45,7 +45,7 @@ struct CollapsibleControlPanel: View {
                         Image(systemName: "rectangle.3.offgrid.fill")
                             .foregroundColor(.white)
                             .padding(8)
-                            .background(Color.gray.opacity(0.2))
+                            .background(Color(hex: "#EB78E3"))
                             .clipShape(Circle())
                     }
                     

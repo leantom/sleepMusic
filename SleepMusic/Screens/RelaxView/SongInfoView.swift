@@ -55,6 +55,7 @@ struct SoundMixRow: View {
         .onTapGesture {
             isPlaying.toggle()
             withAnimation {
+                AudioMixer.shared.resetMixedAudio()
                 AudioMixer.shared.loadAudioFilesSound(soundMix.sounds)
                 AudioMixer.shared.playMixedAudio()
                 AudioMixer.shared.isPlaySaved = true

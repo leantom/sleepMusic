@@ -32,6 +32,7 @@ struct ZenMusicView: View {
     @State private var animateOffset: CGFloat = 0
     @State private var isRelaxingMusicViewPresented = false // New state variable
     
+    @State private var isShowAlarmViewPresented = false // New state variable
     
     var body: some View {
         ZStack {
@@ -48,11 +49,29 @@ struct ZenMusicView: View {
                 }
             
             VStack {
-                
+               
                 Spacer()
                 
                 VStack {
                     HStack {
+                        Button {
+                            withAnimation {
+                                isShowAlarmViewPresented.toggle()
+                            }
+                            
+                        } label: {
+                            Image(systemName: "alarm.fill")
+                                .font(.system(size: 23))
+                                .foregroundStyle(.white)
+                                .frame(width: 35, height: 35)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(style: StrokeStyle(lineWidth: 2))
+                                        .fill(Color.white.opacity(0.2))
+                                )
+                        }
+                        .padding()
+
                         Spacer()
                         Text("For when counting sheep isn’t enough.")
                             .font(.caption)
@@ -77,7 +96,7 @@ struct ZenMusicView: View {
                                     .offset(x: selectedTab == "Sounds" ? 0 : 200)
                                 
                                 Text("Sounds")
-                                    .font(.headline)
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
                                     .foregroundColor(selectedTab == "Sounds" ? .white : .gray)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
@@ -101,7 +120,7 @@ struct ZenMusicView: View {
                                     .offset(x: selectedTab == "Saved" ? 0 : -200)
                                 
                                 Text("Saved")
-                                    .font(.headline)
+                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
                                     .foregroundColor(selectedTab == "Saved" ? .white : .gray)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
@@ -138,7 +157,7 @@ struct ZenMusicView: View {
                                         
                                     }) {
                                         Text(category.name)
-                                            .font(.system(size: 14, weight: .regular))
+                                            .font(.system(size: 14, weight: .regular, design: .monospaced))
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 8)
                                             .background(
@@ -173,7 +192,7 @@ struct ZenMusicView: View {
                                     SoundMixRow(soundMix: track, onDelete: {
                                         delete(soundMix: track)
                                     })
-                                    .transition(.slide)
+                                    .transition(.fade)
                                 }
                             }
                             
@@ -204,11 +223,16 @@ struct ZenMusicView: View {
                     .padding()
             }
         }
-        .fullScreenCover(isPresented: $isRelaxingMusicViewPresented) {
+        .sheet(isPresented: $isRelaxingMusicViewPresented) {
             RelaxingMusicView()
         }
-        .fullScreenCover(isPresented: $isSaveCombinationViewPresented) {
+        .sheet(isPresented: $isShowAlarmViewPresented) {
+            SetAlarmView()
+        }
+        .sheet(isPresented: $isSaveCombinationViewPresented) {
             SleepMixView(sounds: $audioMixer.selectedSounds)
+                .presentationBackground(Color.clear)
+                .presentationBackgroundInteraction(.disabled)
         }
        
     }
@@ -270,8 +294,8 @@ struct SoundButton: View {
                         .font(.system(size: 20))
                         .foregroundColor(isHighlighted ? .white : .gray) // Highlight color on press
                     Text(sound.name)
-                        .foregroundColor(.white)
-                        .font(.caption)
+                        .foregroundColor(isHighlighted ? .white : .gray)
+                        .font(.system(size: 11, weight: .medium, design: .monospaced))
                 }
                 .frame(width: 80, height: 100)
                 .cornerRadius(12)

@@ -48,7 +48,7 @@ struct CarouselView: View {
                     .onTapGesture {
                         selectedTracklist = tracklist
                     }
-                    .onChange(of: currentIndex) { oldIndex, newIndex in
+                    .onChange(of: currentIndex) {  newIndex in
                         // This code runs whenever currentIndex changes
                         print("Scrolled to index \(newIndex)")
                         // Perform any actions needed when the index changes

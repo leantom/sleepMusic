@@ -75,7 +75,7 @@ struct RelaxingMusicView: View {
                                let songs = selectedTracklist.numberOfTracks {
                                 Text("\(songs) songs")
                                     .foregroundColor(.white)
-                                    .font(.subheadline)
+                                    .font(.system(size: 13, weight: .medium, design: .monospaced))
                             }
                             
                         }
@@ -103,6 +103,7 @@ struct RelaxingMusicView: View {
                     } else {
                         // Optional: Placeholder when no tracklist is selected
                         Text("Select a tracklist to view tracks")
+                            .font(.system(size: 13, weight: .medium, design: .monospaced))
                             .foregroundColor(.white)
                             .padding()
                     }
@@ -121,7 +122,7 @@ struct RelaxingMusicView: View {
                 AudioPlayer.shared.setTracks(filteredTracks)
             }
         }
-        .onChange(of: objectState.activeCard) { oldTracklist, newTracklist in
+        .onChange(of: objectState.activeCard) { newTracklist in
                     // Perform any additional actions when selectedTracklist changes
             selectedTracklist = tracklistManager.tracklists[newTracklist]
             AudioPlayer.shared.setTracks(filteredTracks)
@@ -168,11 +169,11 @@ struct SongRow: View {
             // Song title and duration
             VStack(alignment: .leading) {
                 Text(track.name)
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                 
                 Text("Duration: \(trackDurationString(duration: track.duration))")
-                    .font(.subheadline)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
                     .foregroundColor(.gray)
             }
             Spacer()

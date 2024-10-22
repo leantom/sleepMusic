@@ -53,7 +53,7 @@ struct SnapCarousel: View {
                             
                             // Display the title
                             Text(item.title)
-                                .font(.headline)
+                                .font(.system(size: 15, weight: .medium, design: .monospaced))
                                 .foregroundColor(.white)
                                 .padding(.top, 8)
                         }
@@ -65,6 +65,7 @@ struct SnapCarousel: View {
                 }
 
             }
+            .animation(.easeInOut)
         }
     }
 }

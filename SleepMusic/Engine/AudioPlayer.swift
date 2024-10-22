@@ -1,11 +1,5 @@
-//
-//  AudioPlayer.swift
-//  SleepMusic
-//
-//  Created by QuangHo on 16/10/24.
-//
-
 import AVFoundation
+import MediaPlayer
 import Combine
 
 class AudioPlayer: ObservableObject {
@@ -23,10 +17,11 @@ class AudioPlayer: ObservableObject {
         // Observe when the player finishes playing
         NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying),
                                                name: .AVPlayerItemDidPlayToEndTime, object: nil)
+        configureRemoteCommandCenter()
     }
     
+    // MARK: - Audio Session Configuration
     func configureAudioSession() {
-        
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
@@ -35,12 +30,15 @@ class AudioPlayer: ObservableObject {
         }
     }
     
+    // MARK: - Setting up the Tracks
     func setTracks(_ tracks: [Track], startIndex: Int = 0) {
         self.tracks = tracks
         self.currentIndex = startIndex
         playTrack(at: currentIndex)
+        updateNowPlayingInfo() // Update the Control Center with the current track info
     }
     
+    // MARK: - Play a Specific Track by Index
     func playTrack(at index: Int) {
         guard tracks.indices.contains(index) else { return }
         currentIndex = index
@@ -49,13 +47,14 @@ class AudioPlayer: ObservableObject {
             print("Invalid audio URL")
             return
         }
-        if AudioMixer.shared.isPlaying {
-            AudioMixer.shared.stopMixedAudio()
-        }
+        
+        stopMixedAudioIfNeeded()
         
         player = AVPlayer(url: url)
         player?.play()
         isPlaying = true
+        
+        updateNowPlayingInfo() // Update the Now Playing Info
     }
     
     func playTrack(for track: Track) {
@@ -76,34 +75,7 @@ class AudioPlayer: ObservableObject {
     }
     
     
-    func play() {
-        if AudioMixer.shared.isPlaying {
-            AudioMixer.shared.stopMixedAudio()
-        }
-        
-        configureAudioSession()
-        if player == nil {
-            currentTrack = tracks[currentIndex]
-            guard let url = URL(string: currentTrack?.audioFileURL ?? "") else {
-                print("Invalid audio URL")
-                return
-            }
-            
-            player = AVPlayer(url: url)
-        }
-        player?.play()
-        isPlaying = true
-    }
-    
-    func pause() {
-        player?.pause()
-        isPlaying = false
-        if let currentItem = player?.currentItem {
-                NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: currentItem)
-            }
-        player = nil
-    }
-    
+    // MARK: - Play or Pause Toggle
     func togglePlayPause() {
         if isPlaying {
             pause()
@@ -112,43 +84,119 @@ class AudioPlayer: ObservableObject {
         }
     }
     
-    func nextTrack() {
-        if isShuffleEnabled {
-            currentIndex = Int.random(in: 0..<tracks.count)
-        } else {
-            currentIndex = (currentIndex + 1) % tracks.count
+    // MARK: - Pause Playback
+    func pause() {
+        player?.pause()
+        isPlaying = false
+        updateNowPlayingInfo() // Update the Now Playing Info to reflect paused state
+    }
+    
+    // MARK: - Play Current Track
+    func play() {
+        configureAudioSession()
+        
+        if player == nil, tracks.indices.contains(currentIndex) {
+            currentTrack = tracks[currentIndex]
+            guard let url = URL(string: currentTrack?.audioFileURL ?? "") else {
+                print("Invalid audio URL")
+                return
+            }
+            player = AVPlayer(url: url)
         }
-        playTrack(at: currentIndex)
+        
+        player?.play()
+        isPlaying = true
+        updateNowPlayingInfo() // Update the Now Playing Info
     }
     
-    func previousTrack() {
-        if isShuffleEnabled {
-            currentIndex = Int.random(in: 0..<tracks.count)
-        } else {
-            currentIndex = (currentIndex - 1 + tracks.count) % tracks.count
-        }
-        playTrack(at: currentIndex)
-    }
-    
-    func toggleShuffle() {
-        isShuffleEnabled.toggle()
-    }
-    
-    func toggleRepeat() {
-        isRepeatEnabled.toggle()
-    }
-    
+    // MARK: - Player Did Finish Playing
     @objc private func playerDidFinishPlaying() {
-        if AudioMixer.shared.isPlaying {
-            return
-        }
-        if tracks.isEmpty {
-            return
-        }
         if isRepeatEnabled {
             playTrack(at: currentIndex)
         } else {
             nextTrack()
+        }
+    }
+    
+    // MARK: - Play Next Track
+    func nextTrack() {
+        currentIndex = (currentIndex + 1) % tracks.count
+        playTrack(at: currentIndex)
+    }
+    
+    // MARK: - Play Previous Track
+    func previousTrack() {
+        currentIndex = (currentIndex - 1 + tracks.count) % tracks.count
+        playTrack(at: currentIndex)
+    }
+    
+    // MARK: - Configure Remote Command Center
+    func configureRemoteCommandCenter() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+        
+        // Play command
+        commandCenter.playCommand.addTarget { [weak self] event in
+            self?.play()
+            return .success
+        }
+        
+        // Pause command
+        commandCenter.pauseCommand.addTarget { [weak self] event in
+            self?.pause()
+            return .success
+        }
+        
+        // Next track command
+        commandCenter.nextTrackCommand.addTarget { [weak self] event in
+            self?.nextTrack()
+            return .success
+        }
+        
+        // Previous track command
+        commandCenter.previousTrackCommand.addTarget { [weak self] event in
+            self?.previousTrack()
+            return .success
+        }
+    }
+    
+    // MARK: - Shuffle Mode Toggle
+    func toggleShuffle() {
+        isShuffleEnabled.toggle()
+    }
+    
+    // MARK: - Repeat Mode Toggle
+    func toggleRepeat() {
+        isRepeatEnabled.toggle()
+    }
+    
+    // MARK: - Update Now Playing Info
+    func updateNowPlayingInfo() {
+        guard let currentTrack = currentTrack else { return }
+        
+        let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
+        var nowPlayingInfo = [String: Any]()
+        
+        // Set track title, artist, and album info
+        nowPlayingInfo[MPMediaItemPropertyTitle] = currentTrack.name
+        nowPlayingInfo[MPMediaItemPropertyArtist] = currentTrack.tracklistID ?? ""
+        
+        // Set track duration and current playback time
+        if let duration = player?.currentItem?.asset.duration {
+            let durationInSeconds = CMTimeGetSeconds(duration)
+            nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = durationInSeconds
+            nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = CMTimeGetSeconds(player?.currentTime() ?? CMTime())
+        }
+        
+        // Set playback state
+        nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = isPlaying ? 1.0 : 0.0
+        
+        nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
+    }
+    
+    // MARK: - Stop Mixed Audio (if it's playing)
+    private func stopMixedAudioIfNeeded() {
+        if AudioMixer.shared.isPlaying {
+            AudioMixer.shared.stopMixedAudio()
         }
     }
 }

@@ -11,6 +11,7 @@ class AudioMixer:ObservableObject {
     @Published var selectedSounds: [Sound] = []
     @Published var isPlaying: Bool = false
     @Published var isPlaySaved: Bool = false
+    var alarmPlayer: AVAudioPlayer? // Independent player for alarm sound
     
     init(audioFileNames: [String]) {
         if audioFileNames.isEmpty {
@@ -63,6 +64,37 @@ class AudioMixer:ObservableObject {
             print("Error loading audio file: \(error.localizedDescription)")
         }
     }
+    
+    func playAlarmSound(fileName: String) {
+           guard let alarmSoundURL = Bundle.main.url(forResource: fileName, withExtension: "mp3") else {
+               print("Alarm sound not found: \(fileName)")
+               return
+           }
+           
+           do {
+               // Initialize the alarm player with the sound file
+               alarmPlayer = try AVAudioPlayer(contentsOf: alarmSoundURL)
+               
+               // Set the audio session to allow mixing with others, without stopping the engine
+               try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+               try AVAudioSession.sharedInstance().setActive(true)
+               
+               // Play the alarm sound
+               alarmPlayer?.play()
+               print("Playing alarm sound: \(fileName)")
+               
+           } catch {
+               print("Error playing alarm sound: \(error.localizedDescription)")
+           }
+       }
+       
+       // Existing functions for mixing audio (playMixedAudio, stopMixedAudio, etc.) ...
+       
+       // Function to stop the alarm sound
+       func stopAlarmSound() {
+           alarmPlayer?.stop()
+           print("Alarm sound stopped")
+       }
     
     func playMixedAudio() {
         do {
@@ -154,6 +186,12 @@ class AudioMixer:ObservableObject {
             volumeNodes[trackIndex].volume = volume
         } else {
             print("Track index out of bounds")
+        }
+    }
+    
+    func setVolume(volume: Float) {
+        for volumeNode in volumeNodes {
+            volumeNode.volume = volume
         }
     }
     
