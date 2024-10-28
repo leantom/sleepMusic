@@ -36,12 +36,11 @@ struct SnapCarousel: View {
                         VStack {
                             // Display the cover image
                             if let coverImageURL = item.coverImageURL, let url = URL(string: coverImageURL) {
-                                KFImage(url)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width:300, height: 220)
-                                    .cornerRadius(20)
-                                    .clipped()
+                                
+                                DownloadableImageView(url: url)
+                                                   .frame(width: 300, height: 220)
+                                                   .cornerRadius(20)
+                                                   .clipped()
                             } else {
                                 // Placeholder image
                                 Image("img_3")
@@ -66,6 +65,38 @@ struct SnapCarousel: View {
 
             }
             .animation(.easeInOut)
+        }
+    }
+}
+
+
+struct DownloadableImageView: View {
+    let url: URL
+    @State private var progress: Double = 0.0
+    @State private var isLoaded: Bool = false
+
+    var body: some View {
+        ZStack {
+            KFImage(url)
+                .onProgress { receivedSize, totalSize in
+                    progress = Double(receivedSize) / Double(totalSize)
+                }
+                .onSuccess { _ in
+                    isLoaded = true
+                }
+                .placeholder {
+                    // Optionally, you can provide a placeholder view here
+                    Color.gray.opacity(0.3)
+                }
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .opacity(isLoaded ? 1.0 : 0.0) // Hide the image until it's loaded
+            if !isLoaded {
+                // Show the progress view while the image is loading
+                ProgressView(value: progress)
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+            }
         }
     }
 }

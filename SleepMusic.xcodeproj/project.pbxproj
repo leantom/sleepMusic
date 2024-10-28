@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */; };
+		F951FD482CCA46910011709D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F951FD472CCA46910011709D /* Lottie */; };
 		F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */; };
 		F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81782CBE540E00BBEE95 /* FirebaseAnalytics */; };
 		F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817A2CBE540E00BBEE95 /* FirebaseAuth */; };
@@ -53,6 +54,7 @@
 				F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */,
 				F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */,
 				F9DF817D2CBE540E00BBEE95 /* FirebaseCore in Frameworks */,
+				F951FD482CCA46910011709D /* Lottie in Frameworks */,
 				F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */,
 				F9DF81812CBE540E00BBEE95 /* FirebaseFirestore in Frameworks */,
 				F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */,
@@ -108,6 +110,7 @@
 				F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */,
 				F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */,
 				F9F712B72CC17787008A6260 /* FirebaseRemoteConfig */,
+				F951FD472CCA46910011709D /* Lottie */,
 			);
 			productName = SleepMusic;
 			productReference = F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */;
@@ -141,6 +144,7 @@
 				F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				F951FD462CCA46910011709D /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9BAD8AD2CBC3FB5006F6095 /* Products */;
@@ -305,6 +309,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SleepMusic/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SleepLoom;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -316,7 +321,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -338,6 +343,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SleepMusic/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SleepLoom;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -349,7 +355,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -390,6 +396,14 @@
 				minimumVersion = 3.1.2;
 			};
 		};
+		F951FD462CCA46910011709D /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.0;
+			};
+		};
 		F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -413,6 +427,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
+		};
+		F951FD472CCA46910011709D /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F951FD462CCA46910011709D /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
 		};
 		F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;

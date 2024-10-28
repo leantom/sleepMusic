@@ -7,13 +7,17 @@
 import Foundation
 
 struct AlarmSound: Identifiable {
-    let id = UUID() // Unique ID for each alarm sound
-    let name: String
-    let fileName: String
-    let duration: Int // Duration of the sound in seconds
+    var id: String = UUID().uuidString
+    let name: String // Display name of the sound
+    var fileURL: URL?
     
-    var fileURL: URL? {
-        // Get the URL of the file from the bundle
-        return Bundle.main.url(forResource: fileName, withExtension: "mp3") // assuming mp3 format
+    init(id: String, name: String) {
+        self.id = id
+        self.name = name
+        if let url = Bundle.main.url(forResource: id, withExtension: "WAV") {
+            // Use `url` as the file URL for the alarm sound
+            self.fileURL = url
+        }
+        
     }
 }

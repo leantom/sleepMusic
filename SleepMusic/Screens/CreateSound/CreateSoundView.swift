@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import FirebaseAnalytics
 
 struct ZenMusicView: View {
     @ObservedObject var soundMixManager = SoundMixManager.shared
@@ -56,19 +57,16 @@ struct ZenMusicView: View {
                     HStack {
                         Button {
                             withAnimation {
+                                Analytics.logEvent("alarm_view_opened", parameters: nil)
                                 isShowAlarmViewPresented.toggle()
                             }
                             
                         } label: {
-                            Image(systemName: "alarm.fill")
+                            Image(systemName: "alarm.waves.left.and.right.fill")
                                 .font(.system(size: 23))
                                 .foregroundStyle(.white)
                                 .frame(width: 35, height: 35)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(style: StrokeStyle(lineWidth: 2))
-                                        .fill(Color.white.opacity(0.2))
-                                )
+                                
                         }
                         .padding()
 
@@ -86,6 +84,7 @@ struct ZenMusicView: View {
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedTab = "Sounds"
+                                Analytics.logEvent("tab_selected", parameters: ["tab": "Sounds"])
                             }
                         }) {
                             ZStack {
@@ -110,6 +109,7 @@ struct ZenMusicView: View {
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
                                 selectedTab = "Saved"
+                                Analytics.logEvent("tab_selected", parameters: ["tab": "Saved"])
                             }
                         }) {
                             ZStack {
@@ -217,22 +217,30 @@ struct ZenMusicView: View {
             VStack {
                 Spacer()
                 
-                //MARK: --  Music Player Controls
                 CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented,
                                         isSavedViewPresented: $isSaveCombinationViewPresented)
-                    .padding()
+                .padding()
+                
             }
         }
         .sheet(isPresented: $isRelaxingMusicViewPresented) {
+          
             RelaxingMusicView()
         }
-        .sheet(isPresented: $isShowAlarmViewPresented) {
+        .fullScreenCover(isPresented: $isShowAlarmViewPresented) {
             SetAlarmView()
+                
         }
+        
         .sheet(isPresented: $isSaveCombinationViewPresented) {
             SleepMixView(sounds: $audioMixer.selectedSounds)
                 .presentationBackground(Color.clear)
                 .presentationBackgroundInteraction(.disabled)
+        }
+        .onAppear {
+            Task {
+                try await TracklistManager.shared.fetchAllTracklists()
+            }
         }
        
     }
@@ -249,7 +257,9 @@ struct SoundButton: View {
     let sound: Sound
     @ObservedObject var audioMixer: AudioMixer
     
-    @State private var isHighlighted = false // State to track highlight status
+    var isHighlighted: Bool {
+        audioMixer.selectedSounds.contains(where: { $0.name == sound.name })
+    }
     @State private var dragOffset: CGSize = .zero
 
     var body: some View {
@@ -280,13 +290,18 @@ struct SoundButton: View {
             }
             Button(action: {
                 //MARK: Toggle highlight on button press
-                isHighlighted.toggle()
                 if isHighlighted {
-                    //MARK: Play the sound when selected
-                    playSound(sound: sound.audioFile ?? "")
-                } else {
-                    //MARK: Remove the sound when unselected
+                    // Remove the sound when unselected
                     removeSound(sound: sound.audioFile ?? "")
+                    Analytics.logEvent("sound_removed", parameters: [
+                        "sound_name": sound.name,
+                    ])
+                } else {
+                    // Play the sound when selected
+                    playSound(sound: sound.audioFile ?? "")
+                    Analytics.logEvent("sound_selected", parameters: [
+                        "sound_name": sound.name,
+                    ])
                 }
             }) {
                 VStack(spacing: 10) {

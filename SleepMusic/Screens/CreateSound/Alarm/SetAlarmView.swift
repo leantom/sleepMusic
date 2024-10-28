@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UserNotifications
 
 struct SetAlarmView: View {
     @State private var startTime: Double = 0.0 // 10 PM
@@ -20,8 +20,13 @@ struct SetAlarmView: View {
     @State private var bedtime: Date = Calendar.current.date(bySettingHour: 23, minute: 0, second: 0, of: Date()) ?? Date() // Default to 11:00 PM
        @State private var wakeupTime: Date = Calendar.current.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date() // Default to 7:00 AM
     @State private var showAlarmSoundPicker = false // To control the display of the sound picker sheet
-       @State private var selectedAlarmSound: String = "Morning sunset" // The currently selected alarm sound
-       
+    @State private var selectedAlarmSound: String = "Colombia EAS Alarm" // The currently selected alarm sound
+    // Add a new State variable to hold the alarm name
+    @State private var alarmName: String = ""
+
+    @State var alarmViewModel = AlarmSoundViewModel()
+    @State  var showAlertSuccess = false
+    
     @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack {
@@ -39,7 +44,7 @@ struct SetAlarmView: View {
                 
                 HStack {
                     Button {
-                       dismiss()
+                        dismiss()
                     } label: {
                         Image(systemName: "xmark")
                             .font(.system(size: 18))
@@ -52,7 +57,8 @@ struct SetAlarmView: View {
                     .padding([.horizontal, .top])
                     Spacer()
                     Button {
-                       dismiss()
+                        scheduleAlarm()
+                        showAlertSuccess.toggle()
                         
                     } label: {
                         Text("Save")
@@ -165,7 +171,7 @@ struct SetAlarmView: View {
                         .foregroundColor(.white)
                         .background(Color.gray)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
-
+                    
                     // Song title and duration
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Alarm sound")
@@ -208,8 +214,8 @@ struct SetAlarmView: View {
                                 .stroke(Color.gray.opacity(0.5), lineWidth: 1)
                                 .shadow(radius: 5)
                         )
-
-                    // Song title and duration
+                    
+                    //MARK: -- Song title and duration
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Repeat interval")
                             .font(.system(size: 15, weight: .bold, design: .monospaced))
@@ -228,7 +234,7 @@ struct SetAlarmView: View {
                             .font(.system(size: 15))
                     }
                     .padding()
-
+                    
                     
                 }
                 .padding()
@@ -253,16 +259,19 @@ struct SetAlarmView: View {
                                 .stroke(Color.gray.opacity(0.5), lineWidth: 1)
                                 .shadow(radius: 5)
                         )
-
+                    
                     // Song title and duration
                     VStack(alignment: .leading, spacing: 10) {
+                        
                         Text("Alarm name")
                             .font(.system(size: 15, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                         
-                        Text("Morning sunset")
+                        TextField("Enter alarm name", text: $alarmName)
                             .font(.system(size: 13, weight: .bold, design: .monospaced))
                             .foregroundColor(.gray)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .padding(.top, 4)
                     }
                     Spacer()
                     Button {
@@ -273,7 +282,7 @@ struct SetAlarmView: View {
                             .font(.system(size: 15))
                     }
                     .padding()
-
+                    
                     
                 }
                 .padding()
@@ -301,7 +310,7 @@ struct SetAlarmView: View {
                         .padding()
                         .transition(.opacity)
                         .accentColor(.white)
-                        .colorScheme(.dark) 
+                        .colorScheme(.dark)
                         .animation(.easeInOut, value: showDatePicker)
                     
                     Button {
@@ -331,16 +340,128 @@ struct SetAlarmView: View {
             }
         }
         .sheet(isPresented: $showAlarmSoundPicker) {
-            AlarmSoundSelectionView(selectedAlarm: $selectedAlarmSound)
+         
+            AlarmSoundSelectionView(selectedAlarm: $selectedAlarmSound, alarmViewModel: alarmViewModel)
+                    .presentationDetents([.large]) // You can specify medium and large sizes
+                    .presentationDragIndicator(.visible) // Optional drag indicator
+                
+        }
+        
+        .alert("Alarm", isPresented: $showAlertSuccess) {
+            Button("OK", role: .cancel) {
+                dismiss()
+            }
+        } message: {
+            Text("Set alarm successfully!")
         }
     }
     
-    // Helper function to format the time as "hh : mm a"
-        private func formatTime(date: Date) -> String {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "hh : mm a"
-            return formatter.string(from: date)
+    
+    // Schedule the alarm when the save button is tapped
+    func scheduleAlarm() {
+        let center = UNUserNotificationCenter.current()
+        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if granted {
+                scheduleLocalNotifications()
+            } else {
+                print("Permission denied.")
+            }
         }
+    }
+    
+//    func scheduleLocalNotifications() {
+//        let center = UNUserNotificationCenter.current()
+//        
+//        for (index, isSelected) in selectedDays.enumerated() {
+//            if isSelected {
+//                let content = UNMutableNotificationContent()
+//                content.title = "Alarm"
+//                content.body = "Time to wake up!"
+//                content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "severe-warning-alarm-98704.wav"))
+//                
+//                var dateComponents = DateComponents()
+//                dateComponents.hour = Calendar.current.component(.hour, from: wakeupTime)
+//                dateComponents.minute = Calendar.current.component(.minute, from: wakeupTime)
+//                
+//                // Map index to weekday (1 = Sunday, 7 = Saturday)
+//                var weekday = index + 2
+//                if weekday > 7 {
+//                    weekday -= 7
+//                }
+//                dateComponents.weekday = weekday
+//                
+//                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+//                
+//                let uuidString = UUID().uuidString
+//                let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
+//                
+//                center.add(request) { (error) in
+//                    if let error = error {
+//                        print("Error scheduling notification: \(error)")
+//                    } else {
+//                        print("Notification scheduled for weekday \(dateComponents.weekday ?? 0)")
+//                    }
+//                }
+//            }
+//        }
+//    }
+//    
+    func scheduleLocalNotifications() {
+            let center = UNUserNotificationCenter.current()
+
+            Task {
+                // Find the selected alarm sound from the view model
+                guard let selectedAlarm = alarmViewModel.alarmSounds.first(where: { $0.name == selectedAlarmSound }) else {
+                    print("Selected alarm sound not found")
+                    return
+                }
+                
+
+
+                // Now that the sound is downloaded, schedule the notifications
+                for (index, isSelected) in selectedDays.enumerated() {
+                    if isSelected {
+                        let content = UNMutableNotificationContent()
+                        content.title = "Alarm"
+                        content.body = "Time to wake up!"
+
+                        // Use the downloaded sound file
+                        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: selectedAlarm.name))
+
+                        var dateComponents = DateComponents()
+                        dateComponents.hour = Calendar.current.component(.hour, from: wakeupTime)
+                        dateComponents.minute = Calendar.current.component(.minute, from: wakeupTime)
+
+                        // Map index to weekday (1 = Sunday, 7 = Saturday)
+                        var weekday = index + 2
+                        if weekday > 7 {
+                            weekday -= 7
+                        }
+                        dateComponents.weekday = weekday
+
+                        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+
+                        let uuidString = UUID().uuidString
+                        let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
+
+                        center.add(request) { (error) in
+                            if let error = error {
+                                print("Error scheduling notification: \(error)")
+                            } else {
+                                print("Notification scheduled for weekday \(dateComponents.weekday ?? 0)")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    
+    // Helper function to format the time as "hh : mm a"
+    private func formatTime(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "hh : mm a"
+        return formatter.string(from: date)
+    }
 }
 
 #Preview {

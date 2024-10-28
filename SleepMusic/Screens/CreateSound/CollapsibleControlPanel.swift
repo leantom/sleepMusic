@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAnalytics
 
 struct CollapsibleControlPanel: View {
     @State private var isExpanded: Bool = false // Track whether the panel is expanded or collapsed
@@ -7,17 +8,15 @@ struct CollapsibleControlPanel: View {
     @Binding var isSavedViewPresented: Bool
     
     @State var isPlaying: Bool = false
-    
+    @State var isAnimateBlink = false
     var body: some View {
         VStack {
-            Spacer()
-            
             HStack(spacing: 20) {
                 
                 Button(action: {
                     // Toggle panel expansion
                     withAnimation {
-                        
+                        isAnimateBlink = true
                         isExpanded = true
                         if audioMixer.isPlaying {
                             audioMixer.stopMixedAudio()
@@ -39,6 +38,7 @@ struct CollapsibleControlPanel: View {
                     // Additional Buttons (Visible when expanded)
                     Button(action: {
                         withAnimation {
+                            Analytics.logEvent("relaxing_music_view_opened", parameters: nil)
                             isRelaxingMusicViewPresented.toggle()
                         }
                     }) {
@@ -86,6 +86,13 @@ struct CollapsibleControlPanel: View {
             .padding(.horizontal, 30)
             .transition(.move(edge: .bottom)) // Smooth transition effect
         }
+        .overlay {
+            
+            BlinkingView(isStopAnimating: $isAnimateBlink)
+                .offset(x: 20, y: -20)
+                .frame(width: 20, height: 20)
+        }
+        
     }
 }
 

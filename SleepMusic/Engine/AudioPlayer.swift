@@ -7,6 +7,8 @@ class AudioPlayer: ObservableObject {
     
     private var player: AVPlayer?
     @Published var isPlaying: Bool = false
+    @Published var isPlayAlarm: Bool = false
+    
     @Published var currentTrack: Track?
     private var tracks: [Track] = []
     private var currentIndex: Int = 0
@@ -15,9 +17,27 @@ class AudioPlayer: ObservableObject {
     
     private init() {
         // Observe when the player finishes playing
-        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying),
-                                               name: .AVPlayerItemDidPlayToEndTime, object: nil)
+        if !isPlayAlarm {
+            NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying),
+                                                   name: .AVPlayerItemDidPlayToEndTime, object: nil)
+        }
+        
+        // Observe app lifecycle notifications
+            NotificationCenter.default.addObserver(self, selector: #selector(handleAppDidEnterBackground),
+                                                   name: UIApplication.didEnterBackgroundNotification, object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleAppWillEnterForeground),
+                                                   name: UIApplication.willEnterForegroundNotification, object: nil)
+            
+        
         configureRemoteCommandCenter()
+    }
+    
+    @objc private func handleAppDidEnterBackground() {
+        configureAudioSession() // Re-activate the audio session when the app goes to the background
+    }
+
+    @objc private func handleAppWillEnterForeground() {
+        configureAudioSession() // Re-activate the audio session when the app returns to the foreground
     }
     
     // MARK: - Audio Session Configuration
@@ -35,7 +55,7 @@ class AudioPlayer: ObservableObject {
         self.tracks = tracks
         self.currentIndex = startIndex
         playTrack(at: currentIndex)
-        updateNowPlayingInfo() // Update the Control Center with the current track info
+        updateNowPlayingInfo()
     }
     
     // MARK: - Play a Specific Track by Index
@@ -74,6 +94,22 @@ class AudioPlayer: ObservableObject {
         isPlaying = true
     }
     
+    func playTrackURL(url: String) {
+        
+        guard let url = URL(string: url) else {
+            print("Invalid audio URL")
+            return
+        }
+        if AudioMixer.shared.isPlaying {
+            AudioMixer.shared.stopMixedAudio()
+        }
+        
+        player = AVPlayer(url: url)
+        player?.play()
+        isPlaying = true
+    }
+    
+    
     
     // MARK: - Play or Pause Toggle
     func togglePlayPause() {
@@ -90,6 +126,12 @@ class AudioPlayer: ObservableObject {
         isPlaying = false
         updateNowPlayingInfo() // Update the Now Playing Info to reflect paused state
     }
+    
+    func stopPlayAlarm() {
+        player?.pause()
+        isPlaying = false
+    }
+    
     
     // MARK: - Play Current Track
     func play() {
@@ -177,8 +219,8 @@ class AudioPlayer: ObservableObject {
         var nowPlayingInfo = [String: Any]()
         
         // Set track title, artist, and album info
-        nowPlayingInfo[MPMediaItemPropertyTitle] = currentTrack.name
-        nowPlayingInfo[MPMediaItemPropertyArtist] = currentTrack.tracklistID ?? ""
+        nowPlayingInfo[MPMediaItemPropertyTitle] = currentTrack.nameOfTracklist
+        nowPlayingInfo[MPMediaItemPropertyArtist] = currentTrack.name
         
         // Set track duration and current playback time
         if let duration = player?.currentItem?.asset.duration {

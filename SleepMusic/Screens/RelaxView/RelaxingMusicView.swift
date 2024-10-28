@@ -12,7 +12,6 @@ struct RelaxingMusicView: View {
     
     @State var isPlaying: Bool = false
     @ObservedObject var tracklistManager = TracklistManager.shared
-    @State var selectedTracklist: Tracklist?
     @Environment(\.dismiss) var dismiss
     @ObservedObject var objectState: UIStateModel = UIStateModel()
     
@@ -54,12 +53,13 @@ struct RelaxingMusicView: View {
                     }
                 }
                 // Album Art Section
-                SnapCarousel(tracklists: tracklistManager.tracklists, selectedTracklist: $selectedTracklist)
+                
+                SnapCarousel(tracklists: tracklistManager.tracklists, selectedTracklist: $tracklistManager.selectedTracklist)
                     .environmentObject(objectState)
                     .frame(height: 250)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
                     .padding(.vertical, 20)
-                    
+                
                 // Control Buttons
                 MediaControlView()
                     .frame(height: 88)
@@ -71,7 +71,7 @@ struct RelaxingMusicView: View {
                                 .frame(width: 20)
                                 .background(Color.white)
                                 .cornerRadius(5)
-                            if let selectedTracklist = selectedTracklist,
+                            if let selectedTracklist = tracklistManager.selectedTracklist,
                                let songs = selectedTracklist.numberOfTracks {
                                 Text("\(songs) songs")
                                     .foregroundColor(.white)
@@ -81,7 +81,7 @@ struct RelaxingMusicView: View {
                         }
                         
                         Spacer()
-                        if let selectedTracklist = selectedTracklist {
+                        if let selectedTracklist = tracklistManager.selectedTracklist {
                             Text(formatSecondsToHoursMinutes(selectedTracklist.totalDuration))
                                 .foregroundColor(.white)
                                 .font(.subheadline)
@@ -92,10 +92,11 @@ struct RelaxingMusicView: View {
                     .padding(.vertical, 10)
                     .background(Color.black.opacity(0.2))
                     .cornerRadius(10)
-                    if let _ = selectedTracklist {
+                    
+                    if let selectedTracklist = tracklistManager.selectedTracklist{
                         VStack(spacing: 10) {
-                            ForEach(filteredTracks) { track in
-                                SongRow(track: track)
+                            ForEach(tracklistManager.getTracks(by:selectedTracklist.id ?? "")) { track in
+                                SongRow(track: track, listTrack: tracklistManager.getTracks(by: tracklistManager.selectedTracklist?.id ?? ""))
                             }
                         }
                         .padding()
@@ -106,10 +107,12 @@ struct RelaxingMusicView: View {
                             .font(.system(size: 13, weight: .medium, design: .monospaced))
                             .foregroundColor(.white)
                             .padding()
+                        ProgressView()
                     }
                     
                 }
                 .padding(.top)
+                
             }
             
             // Top Title
@@ -117,27 +120,32 @@ struct RelaxingMusicView: View {
         }
         .onAppear {
             Task {
-                try await tracklistManager.fetchAllTracklists()
-                selectedTracklist = tracklistManager.tracklists.first
-                AudioPlayer.shared.setTracks(filteredTracks)
+                tracklistManager.addTracklistObserver()
+                tracklistManager.selectedTracklist = tracklistManager.tracklists.first
+                AudioPlayer.shared.setTracks(tracklistManager.getTracks(by: tracklistManager.selectedTracklist?.id ?? ""))
             }
         }
         .onChange(of: objectState.activeCard) { newTracklist in
                     // Perform any additional actions when selectedTracklist changes
-            selectedTracklist = tracklistManager.tracklists[newTracklist]
-            AudioPlayer.shared.setTracks(filteredTracks)
+            
+            tracklistManager.selectedTracklist = tracklistManager.tracklists[newTracklist]
+            if let id = tracklistManager.tracklists[newTracklist].id {
+                tracklistManager.incrementViewCount(for: id)
+            }
+            
         }
     }
     
     // Computed property to filter tracks by selectedTracklist
     private var filteredTracks: [Track] {
-        guard let selectedID = selectedTracklist?.id else { return [] }
+        guard let selectedID = tracklistManager.selectedTracklist?.id else { return [] }
         return tracklistManager.allTracks.filter { $0.tracklistID == selectedID }
     }
 }
 
 struct SongRow: View {
     var track: Track
+    var listTrack: [Track]
     @State var isPlaying: Bool = false
     // Observe the shared AudioPlayer
     @ObservedObject var audioPlayer = AudioPlayer.shared
@@ -200,7 +208,9 @@ struct SongRow: View {
         .padding(.horizontal)
         .onTapGesture {
             isPlaying.toggle()
+            AudioPlayer.shared.setTracks(listTrack)
             AudioPlayer.shared.playTrack(for: track)
+            
         }
     }
 

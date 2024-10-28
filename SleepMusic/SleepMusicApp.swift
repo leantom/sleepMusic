@@ -97,6 +97,7 @@ struct SleepMusicApp: App {
         }
         return false
     }
+    
     func autoSignIn() {
         if Auth.auth().currentUser == nil {
             // If the user is not signed in, sign them in anonymously
