@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UserNotifications
+import FirebaseAnalytics
 
 struct SetAlarmView: View {
     @State private var startTime: Double = 0.0 // 10 PM
@@ -57,15 +58,22 @@ struct SetAlarmView: View {
                     .padding([.horizontal, .top])
                     Spacer()
                     Button {
+                        
                         scheduleAlarm()
                         showAlertSuccess.toggle()
-                        
+                        Analytics.logEvent("alarm_saved", parameters: [
+                               "bedtime": formatTime(date: bedtime),
+                               "wakeup_time": formatTime(date: wakeupTime),
+                               "days_selected_count": selectedDays.filter { $0 }.count,
+                               "alarm_name": alarmName
+                           ])
                     } label: {
                         Text("Save")
                             .foregroundColor(.white)
                             .font(.system(size: 13, weight: .medium, design: .monospaced))
                     }
                     .padding(.horizontal)
+                    .disabled(alarmName.isEmpty)
                 }
                 
                 GeometryReader { geometry in
@@ -267,11 +275,20 @@ struct SetAlarmView: View {
                             .font(.system(size: 15, weight: .bold, design: .monospaced))
                             .foregroundColor(.white)
                         
-                        TextField("Enter alarm name", text: $alarmName)
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundColor(.gray)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .padding(.top, 4)
+                        ZStack(alignment: .leading) {
+                            if alarmName.isEmpty {
+                                Text("Enter alarm name")
+                                    .font(.system(size: 13, weight: .bold, design: .monospaced))
+                                    .foregroundColor(.gray) // Set placeholder color here
+                                    .padding(.top, 4)
+                            }
+                            
+                            TextField("", text: $alarmName)
+                                .font(.system(size: 13, weight: .bold, design: .monospaced))
+                                .foregroundColor(.gray) // Set text color here
+                                .padding(.top, 4)
+                                .textFieldStyle(PlainTextFieldStyle())
+                        }
                     }
                     Spacer()
                     Button {
@@ -417,16 +434,15 @@ struct SetAlarmView: View {
                 }
                 
 
-
                 // Now that the sound is downloaded, schedule the notifications
                 for (index, isSelected) in selectedDays.enumerated() {
                     if isSelected {
                         let content = UNMutableNotificationContent()
                         content.title = "Alarm"
-                        content.body = "Time to wake up!"
+                        content.body = self.alarmName
 
                         // Use the downloaded sound file
-                        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: selectedAlarm.name))
+                        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "\(selectedAlarm.id).wav"))
 
                         var dateComponents = DateComponents()
                         dateComponents.hour = Calendar.current.component(.hour, from: wakeupTime)

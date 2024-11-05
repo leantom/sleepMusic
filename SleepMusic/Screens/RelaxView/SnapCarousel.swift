@@ -11,7 +11,7 @@ import Kingfisher
 struct SnapCarousel: View {
     @EnvironmentObject var UIState: UIStateModel
     var tracklists: [Tracklist]
-    @Binding var selectedTracklist: Tracklist?
+    var selectedTracklist: Tracklist?
     
     var body: some View {
         let spacing: CGFloat = 16
@@ -26,9 +26,11 @@ struct SnapCarousel: View {
                 spacing: spacing,
                 widthOfHiddenCards: widthOfHiddenCards
             ) {
-                ForEach(tracklists, id: \.id) { item in
+                ForEach(tracklists, id: \.idShow) { item in
+                    @State var isLike: Bool = false
+                    
                     Item(
-                        _id: Int(item.id!) ?? 0,
+                        _id: item.idShow,
                         spacing: spacing,
                         widthOfHiddenCards: widthOfHiddenCards,
                         cardHeight: cardHeight
@@ -36,11 +38,15 @@ struct SnapCarousel: View {
                         VStack {
                             // Display the cover image
                             if let coverImageURL = item.coverImageURL, let url = URL(string: coverImageURL) {
+                                ZStack {
+                                    DownloadableImageView(url: url)
+                                                       .frame(width: 300, height: 220)
+                                                       .cornerRadius(20)
+                                                       .clipped()
+                                                       .shadow(radius: 10)
+                                    
+                                }
                                 
-                                DownloadableImageView(url: url)
-                                                   .frame(width: 300, height: 220)
-                                                   .cornerRadius(20)
-                                                   .clipped()
                             } else {
                                 // Placeholder image
                                 Image("img_3")
@@ -61,6 +67,9 @@ struct SnapCarousel: View {
                     }
                     .padding(.vertical, 16)
                     .animation(.spring())
+                    .onAppear {
+                      
+                    }
                 }
 
             }
@@ -219,60 +228,4 @@ struct Item<Content: View>: View {
     }
 }
 
-
-struct WrapperSnapCarouselView: View {
-    let tracklists: [Tracklist] = [
-        Tracklist(
-            id: "1",
-            title: "Chill Vibes",
-            description: "A collection of mellow and relaxing tracks for unwinding.",
-            coverImageURL: "https://firebasestorage.googleapis.com:443/v0/b/lullify-3fffe.appspot.com/o/coverImages%2F6286B9E8-4251-4A66-A0E0-E50C0B5DAC84.png?alt=media&token=1d254daa-455c-4127-b270-a64b747f8027",
-            totalDuration: 3600,
-            numberOfTracks: 12
-        ),
-        Tracklist(
-            id: "2",
-            title: "Workout Anthems",
-            description: "High-energy tracks to keep you motivated during your workout.",
-            coverImageURL: "https://firebasestorage.googleapis.com:443/v0/b/lullify-3fffe.appspot.com/o/coverImages%2F6286B9E8-4251-4A66-A0E0-E50C0B5DAC84.png?alt=media&token=1d254daa-455c-4127-b270-a64b747f8027",
-            totalDuration: 4500,
-            numberOfTracks: 15
-        ),
-        Tracklist(
-            id: "3",
-            title: "Classical Essentials",
-            description: "The most iconic classical music pieces in one playlist.",
-            coverImageURL: "https://firebasestorage.googleapis.com:443/v0/b/lullify-3fffe.appspot.com/o/coverImages%2F6286B9E8-4251-4A66-A0E0-E50C0B5DAC84.png?alt=media&token=1d254daa-455c-4127-b270-a64b747f8027",
-            totalDuration: 5400,
-            numberOfTracks: 10
-        ),
-        Tracklist(
-            id: "4",
-            title: "Indie Hits",
-            description: "A mix of the latest and greatest indie tracks from emerging artists.",
-            coverImageURL: "https://firebasestorage.googleapis.com:443/v0/b/lullify-3fffe.appspot.com/o/coverImages%2F6286B9E8-4251-4A66-A0E0-E50C0B5DAC84.png?alt=media&token=1d254daa-455c-4127-b270-a64b747f8027",
-            totalDuration: 3900,
-            numberOfTracks: 13
-        ),
-        Tracklist(
-            id: "5",
-            title: "Jazz Classics",
-            description: "Timeless jazz tracks that define the genre.",
-            coverImageURL: "https://firebasestorage.googleapis.com:443/v0/b/lullify-3fffe.appspot.com/o/coverImages%2F6286B9E8-4251-4A66-A0E0-E50C0B5DAC84.png?alt=media&token=1d254daa-455c-4127-b270-a64b747f8027",
-            totalDuration: 4200,
-            numberOfTracks: 14
-        )
-    ]
-
-
-    @State var selectedTracklist: Tracklist?
-    
-    var body: some View {
-        SnapCarousel(tracklists: tracklists, selectedTracklist: $selectedTracklist)
-    }
-}
-
-#Preview {
-    WrapperSnapCarouselView()
-}
 

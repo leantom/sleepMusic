@@ -54,7 +54,7 @@ struct RelaxingMusicView: View {
                 }
                 // Album Art Section
                 
-                SnapCarousel(tracklists: tracklistManager.tracklists, selectedTracklist: $tracklistManager.selectedTracklist)
+                SnapCarousel(tracklists: tracklistManager.tracklists)
                     .environmentObject(objectState)
                     .frame(height: 250)
                     .clipShape(RoundedRectangle(cornerRadius: 20))
@@ -84,7 +84,7 @@ struct RelaxingMusicView: View {
                         if let selectedTracklist = tracklistManager.selectedTracklist {
                             Text(formatSecondsToHoursMinutes(selectedTracklist.totalDuration))
                                 .foregroundColor(.white)
-                                .font(.subheadline)
+                                .font(.system(size: 13, weight: .medium, design: .monospaced))
                         }
                         
                     }
@@ -93,10 +93,11 @@ struct RelaxingMusicView: View {
                     .background(Color.black.opacity(0.2))
                     .cornerRadius(10)
                     
-                    if let selectedTracklist = tracklistManager.selectedTracklist{
+                    if let selectedTracklist = tracklistManager.selectedTracklist ,
+                       let tracks = selectedTracklist.tracks {
                         VStack(spacing: 10) {
-                            ForEach(tracklistManager.getTracks(by:selectedTracklist.id ?? "")) { track in
-                                SongRow(track: track, listTrack: tracklistManager.getTracks(by: tracklistManager.selectedTracklist?.id ?? ""))
+                            ForEach(tracks) { track in
+                                SongRow(track: track, listTrack: tracks)
                             }
                         }
                         .padding()
@@ -107,7 +108,10 @@ struct RelaxingMusicView: View {
                             .font(.system(size: 13, weight: .medium, design: .monospaced))
                             .foregroundColor(.white)
                             .padding()
-                        ProgressView()
+                        ProgressView(value: 0.5)
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color.purple))
+                            .padding(.horizontal, 60)
+                            .padding(.top, 20)
                     }
                     
                 }
@@ -120,14 +124,38 @@ struct RelaxingMusicView: View {
         }
         .onAppear {
             Task {
-                tracklistManager.addTracklistObserver()
-                tracklistManager.selectedTracklist = tracklistManager.tracklists.first
-                AudioPlayer.shared.setTracks(tracklistManager.getTracks(by: tracklistManager.selectedTracklist?.id ?? ""))
+                if tracklistManager.tracklists.isEmpty {
+                    try await tracklistManager.fetchTracklist()
+                    tracklistManager.selectedTracklist = tracklistManager.tracklists.first
+                }
+                
+                if AppSetting.shared.isOpenFromWidget {
+                    if let tracklist = tracklistManager.getTracklist(by: AppSetting.shared.trackId),
+                       let tracks = tracklist.tracks,
+                       let index = tracklistManager.tracklists.firstIndex(of: tracklist) {
+                        AudioPlayer.shared.setTracks(tracks)
+                        objectState.activeCard = index
+                    }
+                } else {
+                    if AudioPlayer.shared.isPlaying {
+                        return
+                    }
+                    if let selectedTracklist = tracklistManager.selectedTracklist ,
+                       let tracks = selectedTracklist.tracks {
+                        AudioPlayer.shared.setTracks(tracks)
+                    }
+                }
             }
         }
+        .onDisappear(perform: {
+            AppSetting.shared.isOpenFromWidget = false
+        })
         .onChange(of: objectState.activeCard) { newTracklist in
                     // Perform any additional actions when selectedTracklist changes
-            
+            // Ensure the index is within bounds
+            guard newTracklist >= 0 && newTracklist < tracklistManager.tracklists.count else { return }
+                
+                
             tracklistManager.selectedTracklist = tracklistManager.tracklists[newTracklist]
             if let id = tracklistManager.tracklists[newTracklist].id {
                 tracklistManager.incrementViewCount(for: id)

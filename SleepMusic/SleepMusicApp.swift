@@ -13,8 +13,8 @@ import FirebaseRemoteConfig
 struct SleepMusicApp: App {
     
     @State private var showUpdateAlert = false
-    @State private var remoteConfigVersion = "1.0"
-    
+    @State private var remoteConfigVersion = "1.2"
+    @State private var isOpenFromWidget = false
     init () {
         
         FirebaseApp.configure()
@@ -25,6 +25,11 @@ struct SleepMusicApp: App {
             ContentView()
                 .onAppear {
                     fetchRemoteConfig()
+                    
+                    NotificationCenter.default.addObserver(forName: .openTrackFromWidget, object: nil, queue: .main) { notification in
+                        print("notification: \(notification)")
+                    }
+                    
                 }
                 .alert(isPresented: $showUpdateAlert) {
                     Alert(
@@ -38,7 +43,20 @@ struct SleepMusicApp: App {
                         })
                     )
                 }
+                .onOpenURL { url in
+                                   handleURL(url)
+                               }
         }
+    }
+    
+    func handleURL(_ url: URL) {
+        // Parse and handle the URL accordingly
+        guard url.scheme == "widget-deeplink" else { return }
+        print(url.absoluteString)
+        isOpenFromWidget = true
+        AppSetting.shared.isOpenFromWidget = true
+        guard let trackId = url.absoluteString.split(separator: "//").last else { return }
+        AppSetting.shared.trackId = String(trackId)
     }
     
     func fetchRemoteConfig() {

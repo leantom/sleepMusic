@@ -23,6 +23,10 @@ struct ContentView: View {
     }
 }
 
+extension Notification.Name {
+    static let openTrackFromWidget = Notification.Name("openTrackFromWidget")
+}
+
 #Preview {
     ContentView()
 }

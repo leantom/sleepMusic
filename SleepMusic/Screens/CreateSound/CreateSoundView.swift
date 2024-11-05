@@ -14,6 +14,8 @@ struct ZenMusicView: View {
     @ObservedObject var audioMixer: AudioMixer = AudioMixer.shared
     let categories = SoundCategory.getCategories()
     @State private var inputText: String = ""
+    @ObservedObject var settingApp = AppSetting.shared
+    
     // Filtered sounds based on selected category
     var filteredSounds: [Sound] {
         if selectedCategory == "All" {
@@ -31,7 +33,7 @@ struct ZenMusicView: View {
     @State private var selectedCategory = "All" // Tracks the currently selected category
     @State private var isControlPanelVisible: Bool = true // Track visibility of the control panel
     @State private var animateOffset: CGFloat = 0
-    @State private var isRelaxingMusicViewPresented = false // New state variable
+    @State var isRelaxingMusicViewPresented = false // New state variable
     
     @State private var isShowAlarmViewPresented = false // New state variable
     
@@ -223,7 +225,7 @@ struct ZenMusicView: View {
                 
             }
         }
-        .sheet(isPresented: $isRelaxingMusicViewPresented) {
+        .fullScreenCover(isPresented: $isRelaxingMusicViewPresented) {
           
             RelaxingMusicView()
         }
@@ -231,18 +233,18 @@ struct ZenMusicView: View {
             SetAlarmView()
                 
         }
-        
         .sheet(isPresented: $isSaveCombinationViewPresented) {
             SleepMixView(sounds: $audioMixer.selectedSounds)
                 .presentationBackground(Color.clear)
                 .presentationBackgroundInteraction(.disabled)
         }
         .onAppear {
-            Task {
-                try await TracklistManager.shared.fetchAllTracklists()
+            isRelaxingMusicViewPresented = AppSetting.shared.isOpenFromWidget
+        }.onChange(of: settingApp.isOpenFromWidget) { newValue in
+            if newValue {
+                isRelaxingMusicViewPresented = newValue
             }
         }
-       
     }
     
     private func delete(soundMix: SoundMix) {

@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F9194E902CD343B9006432F0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9194E8F2CD343B9006432F0 /* WidgetKit.framework */; };
+		F9194E922CD343B9006432F0 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9194E912CD343B9006432F0 /* SwiftUI.framework */; };
+		F9194EA32CD343BA006432F0 /* TracklistEntryExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F9194E8D2CD343B9006432F0 /* TracklistEntryExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F9194EC32CD346E8006432F0 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9194EC22CD346E8006432F0 /* FirebaseAnalytics */; };
+		F9194EC52CD346E8006432F0 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F9194EC42CD346E8006432F0 /* FirebaseAuth */; };
+		F9194EC72CD346E8006432F0 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F9194EC62CD346E8006432F0 /* FirebaseCore */; };
+		F9194EC92CD346E8006432F0 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9194EC82CD346E8006432F0 /* FirebaseCrashlytics */; };
+		F9194ECB2CD346E8006432F0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F9194ECA2CD346E8006432F0 /* FirebaseFirestore */; };
 		F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */; };
 		F951FD482CCA46910011709D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F951FD472CCA46910011709D /* Lottie */; };
 		F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */; };
@@ -19,11 +27,46 @@
 		F9F712B82CC17787008A6260 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = F9F712B72CC17787008A6260 /* FirebaseRemoteConfig */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		F9194EA12CD343BA006432F0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F9BAD8A42CBC3FB5006F6095 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F9194E8C2CD343B9006432F0;
+			remoteInfo = TracklistEntryExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F9194EA42CD343BA006432F0 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F9194EA32CD343BA006432F0 /* TracklistEntryExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		F9194E8D2CD343B9006432F0 /* TracklistEntryExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TracklistEntryExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		F9194E8F2CD343B9006432F0 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F9194E912CD343B9006432F0 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		F9194ED12CD373DB006432F0 /* TracklistEntryExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TracklistEntryExtension.entitlements; sourceTree = "<group>"; };
 		F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SleepMusic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F9194EA82CD343BA006432F0 /* Exceptions for "TracklistEntry" folder in "TracklistEntryExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F9194E8C2CD343B9006432F0 /* TracklistEntryExtension */;
+		};
 		F9F712BA2CC17C99008A6260 /* Exceptions for "SleepMusic" folder in "SleepMusic" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -34,6 +77,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F9194E932CD343B9006432F0 /* TracklistEntry */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				F9194EA82CD343BA006432F0 /* Exceptions for "TracklistEntry" folder in "TracklistEntryExtension" target */,
+			);
+			path = TracklistEntry;
+			sourceTree = "<group>";
+		};
 		F9BAD8AE2CBC3FB5006F6095 /* SleepMusic */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -45,6 +96,20 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F9194E8A2CD343B9006432F0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9194E922CD343B9006432F0 /* SwiftUI.framework in Frameworks */,
+				F9194EC72CD346E8006432F0 /* FirebaseCore in Frameworks */,
+				F9194E902CD343B9006432F0 /* WidgetKit.framework in Frameworks */,
+				F9194EC92CD346E8006432F0 /* FirebaseCrashlytics in Frameworks */,
+				F9194EC32CD346E8006432F0 /* FirebaseAnalytics in Frameworks */,
+				F9194EC52CD346E8006432F0 /* FirebaseAuth in Frameworks */,
+				F9194ECB2CD346E8006432F0 /* FirebaseFirestore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9BAD8A92CBC3FB5006F6095 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -65,10 +130,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F9194E8E2CD343B9006432F0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F9194E8F2CD343B9006432F0 /* WidgetKit.framework */,
+				F9194E912CD343B9006432F0 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		F9BAD8A32CBC3FB5006F6095 = {
 			isa = PBXGroup;
 			children = (
+				F9194ED12CD373DB006432F0 /* TracklistEntryExtension.entitlements */,
 				F9BAD8AE2CBC3FB5006F6095 /* SleepMusic */,
+				F9194E932CD343B9006432F0 /* TracklistEntry */,
+				F9194E8E2CD343B9006432F0 /* Frameworks */,
 				F9BAD8AD2CBC3FB5006F6095 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +154,7 @@
 			isa = PBXGroup;
 			children = (
 				F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */,
+				F9194E8D2CD343B9006432F0 /* TracklistEntryExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,6 +162,33 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		F9194E8C2CD343B9006432F0 /* TracklistEntryExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F9194EA72CD343BA006432F0 /* Build configuration list for PBXNativeTarget "TracklistEntryExtension" */;
+			buildPhases = (
+				F9194E892CD343B9006432F0 /* Sources */,
+				F9194E8A2CD343B9006432F0 /* Frameworks */,
+				F9194E8B2CD343B9006432F0 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F9194E932CD343B9006432F0 /* TracklistEntry */,
+			);
+			name = TracklistEntryExtension;
+			packageProductDependencies = (
+				F9194EC22CD346E8006432F0 /* FirebaseAnalytics */,
+				F9194EC42CD346E8006432F0 /* FirebaseAuth */,
+				F9194EC62CD346E8006432F0 /* FirebaseCore */,
+				F9194EC82CD346E8006432F0 /* FirebaseCrashlytics */,
+				F9194ECA2CD346E8006432F0 /* FirebaseFirestore */,
+			);
+			productName = TracklistEntryExtension;
+			productReference = F9194E8D2CD343B9006432F0 /* TracklistEntryExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		F9BAD8AB2CBC3FB5006F6095 /* SleepMusic */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F9BAD8BA2CBC3FB6006F6095 /* Build configuration list for PBXNativeTarget "SleepMusic" */;
@@ -91,10 +196,12 @@
 				F9BAD8A82CBC3FB5006F6095 /* Sources */,
 				F9BAD8A92CBC3FB5006F6095 /* Frameworks */,
 				F9BAD8AA2CBC3FB5006F6095 /* Resources */,
+				F9194EA42CD343BA006432F0 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F9194EA22CD343BA006432F0 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				F9BAD8AE2CBC3FB5006F6095 /* SleepMusic */,
@@ -126,6 +233,9 @@
 				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
+					F9194E8C2CD343B9006432F0 = {
+						CreatedOnToolsVersion = 16.0;
+					};
 					F9BAD8AB2CBC3FB5006F6095 = {
 						CreatedOnToolsVersion = 16.0;
 					};
@@ -152,11 +262,19 @@
 			projectRoot = "";
 			targets = (
 				F9BAD8AB2CBC3FB5006F6095 /* SleepMusic */,
+				F9194E8C2CD343B9006432F0 /* TracklistEntryExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F9194E8B2CD343B9006432F0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9BAD8AA2CBC3FB5006F6095 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -167,6 +285,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F9194E892CD343B9006432F0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F9BAD8A82CBC3FB5006F6095 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -176,7 +301,71 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		F9194EA22CD343BA006432F0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F9194E8C2CD343B9006432F0 /* TracklistEntryExtension */;
+			targetProxy = F9194EA12CD343BA006432F0 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		F9194EA52CD343BA006432F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TracklistEntryExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 58JMRW9E5N;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TracklistEntry/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TracklistEntry;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic.TracklistEntry;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		F9194EA62CD343BA006432F0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = TracklistEntryExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 58JMRW9E5N;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TracklistEntry/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = TracklistEntry;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2;
+				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic.TracklistEntry;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		F9BAD8B82CBC3FB6006F6095 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -301,6 +490,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SleepMusic/SleepMusic.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SleepMusic/Preview Content\"";
@@ -321,7 +511,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -335,6 +525,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = SleepMusic/SleepMusic.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"SleepMusic/Preview Content\"";
@@ -355,7 +546,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.3;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -367,6 +558,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F9194EA72CD343BA006432F0 /* Build configuration list for PBXNativeTarget "TracklistEntryExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F9194EA52CD343BA006432F0 /* Debug */,
+				F9194EA62CD343BA006432F0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F9BAD8A72CBC3FB5006F6095 /* Build configuration list for PBXProject "SleepMusic" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -423,6 +623,31 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F9194EC22CD346E8006432F0 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		F9194EC42CD346E8006432F0 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		F9194EC62CD346E8006432F0 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		F9194EC82CD346E8006432F0 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		F9194ECA2CD346E8006432F0 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
 		F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
