@@ -31,7 +31,7 @@ struct SetAlarmView: View {
     @Environment(\.dismiss) var dismiss
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color.purple, Color.black]),
+            LinearGradient(gradient: Gradient(colors: [Color(red: 0.06, green: 0.06, blue: 0.08), Color.black]),
                            startPoint: .top, endPoint: .bottom)
             .edgesIgnoringSafeArea(.all)
             .overlay {
@@ -51,9 +51,9 @@ struct SetAlarmView: View {
                             .font(.system(size: 18))
                             .frame(width: 35, height: 35)
                             .foregroundColor(.white)
-                            .background(Color(red: 0.104, green: 0.082, blue: 0.243))
+                            .background(Color.white.opacity(0.1))
                             .clipShape(Circle())
-                            .shadow(color: .gray, radius: 5, x: 2, y: 2)
+                            .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
                     }
                     .padding([.horizontal, .top])
                     Spacer()
@@ -98,9 +98,9 @@ struct SetAlarmView: View {
                                 .foregroundColor(selectedDays[index] ? .white : .gray)
                                 .background(
                                     RoundedRectangle(cornerRadius: 10)
-                                        .stroke(selectedDays[index] ? Color.purple : Color.gray, lineWidth: 2)
+                                        .stroke(selectedDays[index] ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.gray, lineWidth: 2)
                                         .background(
-                                            selectedDays[index] ? Color.purple : Color.clear
+                                            selectedDays[index] ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.clear
                                         )
                                         .cornerRadius(10)
                                 )
@@ -322,11 +322,11 @@ struct SetAlarmView: View {
                     DatePicker("", selection: $selectedDate, displayedComponents: .hourAndMinute)
                         .datePickerStyle(WheelDatePickerStyle())
                         .labelsHidden()
-                        .background(Color.purple)
+                        .background(Color(red: 0.1, green: 0.1, blue: 0.12))
                         .cornerRadius(20)
                         .padding()
                         .transition(.opacity)
-                        .accentColor(.white)
+                        .accentColor(Color(red: 0.7, green: 0.5, blue: 0.9))
                         .colorScheme(.dark)
                         .animation(.easeInOut, value: showDatePicker)
                     

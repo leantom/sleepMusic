@@ -18,9 +18,9 @@ struct SleepMixView: View {
     
     var body: some View {
         ZStack {
-//            LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.2), Color.gray.opacity(0.8)]),
-//                           startPoint: .top, endPoint: .bottom)
-//            .edgesIgnoringSafeArea(.all)
+            LinearGradient(gradient: Gradient(colors: [Color(red: 0.06, green: 0.06, blue: 0.08), Color.black]),
+                           startPoint: .top, endPoint: .bottom)
+            .edgesIgnoringSafeArea(.all)
             if isShowTimer {
                 TimerSettingsView(isPresented: $isShowTimer)
 
@@ -94,7 +94,7 @@ struct SleepMixView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.blue.opacity(0.1))
+                        .background(Color(red: 0.7, green: 0.5, blue: 0.9).opacity(0.1))
                         .cornerRadius(10)
                         .overlay(
                             RoundedRectangle(cornerRadius: 10) // Rounded border with a corner radius
@@ -185,7 +185,7 @@ struct SleepMixView: View {
                             
                         }
                     }
-                    .background(.white.opacity(0.2))
+                    .background(Color(red: 0.15, green: 0.15, blue: 0.18).opacity(0.8))
                     .cornerRadius(20)
                     .padding()
                 }
@@ -195,7 +195,6 @@ struct SleepMixView: View {
                 .safeAreaInset(edge: .bottom) {
                     Color.clear.frame(height: 44)
                 }
-                .background(Color.black.opacity(0.8))
             }
             
         }
@@ -223,7 +222,7 @@ struct SoundSlider: View {
                     .font(.system(size: 14 , weight: .medium, design: .monospaced))
                     .foregroundStyle(.white)
                 Slider(value: $sound.volume, in: 0...1)
-                    .accentColor(.purple)
+                    .accentColor(Color(red: 0.7, green: 0.5, blue: 0.9))
             }
             
             

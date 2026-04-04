@@ -40,7 +40,7 @@ struct ZenMusicView: View {
     var body: some View {
         ZStack {
             // Background Gradient
-            LinearGradient(gradient: Gradient(colors: [Color.purple, Color.black]),
+            LinearGradient(gradient: Gradient(colors: [Color(red: 0.06, green: 0.06, blue: 0.08), Color.black]),
                            startPoint: .top, endPoint: .bottom)
                 .edgesIgnoringSafeArea(.all)
                 .overlay {
@@ -88,10 +88,11 @@ struct ZenMusicView: View {
                         }) {
                             ZStack {
                                 Rectangle()
-                                    .fill(selectedTab == .sounds ? Color.purple : Color.clear)
+                                    .fill(selectedTab == .sounds ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.clear)
                                     .cornerRadius(20)
                                     .opacity(selectedTab == .sounds ? 1 : 0)
                                     .offset(x: selectedTab == .sounds ? 0 : 200)
+                                    .shadow(color: selectedTab == .sounds ? Color(red: 0.7, green: 0.5, blue: 0.9).opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
                                 
                                 Text(SelectedTab.sounds.rawValue)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
@@ -112,10 +113,11 @@ struct ZenMusicView: View {
                         }) {
                             ZStack {
                                 Rectangle()
-                                    .fill(selectedTab == .recommended ? Color.purple : Color.clear)
+                                    .fill(selectedTab == .recommended ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.clear)
                                     .cornerRadius(20)
                                     .opacity(selectedTab == .recommended ? 1 : 0)
                                     .offset(x: selectedTab == .recommended ? 0 : -200)
+                                    .shadow(color: selectedTab == .recommended ? Color(red: 0.7, green: 0.5, blue: 0.9).opacity(0.5) : Color.clear, radius: 10, x: 0, y: 0)
                                 
                                 Text(SelectedTab.recommended.rawValue)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
@@ -158,12 +160,13 @@ struct ZenMusicView: View {
                                                 .font(.system(size: 14, weight: .regular, design: .monospaced))
                                                 .padding(.horizontal, 16)
                                                 .padding(.vertical, 8)
-                                                .background(selectedCategory == category.name ? Color.purple : Color.clear)
+                                                .background(selectedCategory == category.name ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.clear)
                                                 .foregroundColor(selectedCategory == category.name ? .white : .gray)
                                                 .overlay(
                                                     RoundedRectangle(cornerRadius: 20)
-                                                        .stroke(Color.purple, lineWidth: 1)
+                                                        .stroke(Color(red: 0.7, green: 0.5, blue: 0.9), lineWidth: 1)
                                                 )
+                                                .shadow(color: selectedCategory == category.name ? Color(red: 0.7, green: 0.5, blue: 0.9).opacity(0.4) : Color.clear, radius: 5, x: 0, y: 0)
                                                 .cornerRadius(20)
                                         }
                                     }
@@ -292,7 +295,7 @@ struct SoundButton: View {
                 Spacer()
                 Rectangle()
                     .fill(LinearGradient(
-                        gradient: Gradient(colors: isHighlighted ? [Color.purple.opacity(0.6), Color.gray.opacity(0.1)] : [Color.gray.opacity(0.3), Color.gray.opacity(0.1)]),
+                        gradient: Gradient(colors: isHighlighted ? [Color(red: 0.7, green: 0.5, blue: 0.9).opacity(0.4), Color.clear] : [Color.white.opacity(0.05), Color.clear]),
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))

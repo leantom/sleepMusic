@@ -19,7 +19,7 @@ struct RelaxingMusicView: View {
         ZStack {
             // Background Gradient
             LinearGradient(
-                gradient: Gradient(colors: [.purple, .black]),
+                gradient: Gradient(colors: [Color(red: 0.06, green: 0.06, blue: 0.08), Color.black]),
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -42,9 +42,9 @@ struct RelaxingMusicView: View {
                                         .font(.system(size: 20))
                                         .frame(width: 35, height: 35)
                                         .foregroundColor(.white)
-                                        .background(Color(red: 0.104, green: 0.082, blue: 0.243))
+                                        .background(Color.white.opacity(0.1))
                                         .clipShape(Circle())
-                                        .shadow(color: .gray, radius: 5, x: 2, y: 2)
+                                        .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
                                 }
                                 .padding()
                                 Spacer()
@@ -57,9 +57,9 @@ struct RelaxingMusicView: View {
                                         .font(.system(size: 20))
                                         .frame(width: 35, height: 35)
                                         .foregroundColor(.white)
-                                        .background(Color(red: 0.104, green: 0.082, blue: 0.243))
+                                        .background(Color.white.opacity(0.1))
                                         .clipShape(Circle())
-                                        .shadow(color: .gray, radius: 5, x: 2, y: 2)
+                                        .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
                                 }
                                 .padding()
                                 
@@ -105,7 +105,7 @@ struct RelaxingMusicView: View {
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 10)
-                    .background(Color.black.opacity(0.2))
+                    .background(Color.white.opacity(0.05))
                     .cornerRadius(10)
                     
                     if let selectedTracklist = tracklistManager.selectedTracklist ,
@@ -124,7 +124,7 @@ struct RelaxingMusicView: View {
                             .foregroundColor(.white)
                             .padding()
                         ProgressView(value: 0.5)
-                            .progressViewStyle(LinearProgressViewStyle(tint: Color.purple))
+                            .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.7, green: 0.5, blue: 0.9)))
                             .padding(.horizontal, 60)
                             .padding(.top, 20)
                     }
