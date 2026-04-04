@@ -48,6 +48,21 @@ struct RelaxingMusicView: View {
                                 }
                                 .padding()
                                 Spacer()
+                                Button {
+                                    Task {
+                                        try await tracklistManager.fetchTracklist()
+                                    }
+                                } label: {
+                                    Image(systemName: "arrow.trianglehead.clockwise")
+                                        .font(.system(size: 20))
+                                        .frame(width: 35, height: 35)
+                                        .foregroundColor(.white)
+                                        .background(Color(red: 0.104, green: 0.082, blue: 0.243))
+                                        .clipShape(Circle())
+                                        .shadow(color: .gray, radius: 5, x: 2, y: 2)
+                                }
+                                .padding()
+                                
                             }
                         }
                     }
@@ -140,6 +155,7 @@ struct RelaxingMusicView: View {
                     if AudioPlayer.shared.isPlaying {
                         return
                     }
+                    tracklistManager.selectedTracklist = tracklistManager.tracklists.first
                     if let selectedTracklist = tracklistManager.selectedTracklist ,
                        let tracks = selectedTracklist.tracks {
                         AudioPlayer.shared.setTracks(tracks)

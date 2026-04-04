@@ -17,7 +17,7 @@ struct SaveCombinationView: View {
     var body: some View {
         VStack(spacing: 20) {
             Text("Save Combination")
-                .font(.title)
+                .font(.system(size: 15, weight: .bold, design: .monospaced))
             TextField("Combination Name", text: $combinationName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()

@@ -10,8 +10,10 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseRemoteConfig
 @main
+
 struct SleepMusicApp: App {
-    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     @State private var showUpdateAlert = false
     @State private var remoteConfigVersion = "1.2"
     @State private var isOpenFromWidget = false

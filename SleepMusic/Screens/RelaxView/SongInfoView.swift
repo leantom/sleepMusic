@@ -25,11 +25,11 @@ struct SoundMixRow: View {
             // Song title and duration
             VStack(alignment: .leading) {
                 Text(soundMix.name)
-                    .font(.headline)
+                    .font(.system(size: 13, weight: .medium, design: .monospaced))
                     .foregroundColor(.white)
                 
                 Text("Sounds: \(soundMix.sounds.count)")
-                    .font(.subheadline)
+                    .font(.system(size: 13, weight: .regular, design: .monospaced))
                     .foregroundColor(.gray)
             }
             Spacer()

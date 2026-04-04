@@ -20,7 +20,7 @@ struct Tracklist: Identifiable, Codable, Equatable {
     var rating: Double?               // Rating of the tracklist
     var viewCount: Int?               // View count of the tracklist
     var tracks: [Track]?              // Array of tracks
-    var idShow: Int = 0               // Additional ID for display purposes
+    var idShow: Int = Int.random(in: 1...10000)               // Additional ID for display purposes
 
     // Custom initializer to decode
     init(from decoder: Decoder) throws {
@@ -34,7 +34,7 @@ struct Tracklist: Identifiable, Codable, Equatable {
         rating = try container.decodeIfPresent(Double.self, forKey: .rating)
         viewCount = try container.decodeIfPresent(Int.self, forKey: .viewCount)
         tracks = try container.decodeIfPresent([Track].self, forKey: .tracks)
-        idShow = 0
+        idShow = Int.random(in: 1...10000)
     }
 
     // Method to encode the struct back to JSON

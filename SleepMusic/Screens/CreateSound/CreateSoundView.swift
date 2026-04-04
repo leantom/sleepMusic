@@ -1,12 +1,11 @@
-//
-//  CreateSoundView.swift
-//  MusicSleep
-//
-//  Created by QuangHo on 13/10/24.
-//
-
 import SwiftUI
 import FirebaseAnalytics
+import GoogleMobileAds
+
+enum SelectedTab: String, CaseIterable {
+    case sounds = "Sounds"
+    case recommended = "Recommended"
+}
 
 struct ZenMusicView: View {
     @ObservedObject var soundMixManager = SoundMixManager.shared
@@ -15,6 +14,7 @@ struct ZenMusicView: View {
     let categories = SoundCategory.getCategories()
     @State private var inputText: String = ""
     @ObservedObject var settingApp = AppSetting.shared
+    @State var isAnimateBlink = false
     
     // Filtered sounds based on selected category
     var filteredSounds: [Sound] {
@@ -27,15 +27,15 @@ struct ZenMusicView: View {
             return categories.flatMap { $0.sounds }
         }
     }
+    var adSizeGlobal: GADAdSize = GADAdSize(size: CGSize(width: UIScreen.main.bounds.width, height: 60), flags: 1)
     
-    @State private var selectedTab: String = "Sounds" // Track selected tab
-
-    @State private var selectedCategory = "All" // Tracks the currently selected category
-    @State private var isControlPanelVisible: Bool = true // Track visibility of the control panel
+    // Using enum for tab selection
+    @State private var selectedTab: SelectedTab = .sounds
+    @State private var selectedCategory = "All"
+    @State private var isControlPanelVisible: Bool = true
     @State private var animateOffset: CGFloat = 0
-    @State var isRelaxingMusicViewPresented = false // New state variable
-    
-    @State private var isShowAlarmViewPresented = false // New state variable
+    @State var isRelaxingMusicViewPresented = false
+    @State private var isShowAlarmViewPresented = false
     
     var body: some View {
         ZStack {
@@ -48,11 +48,9 @@ struct ZenMusicView: View {
                         .resizable()
                         .scaledToFill()
                         .edgesIgnoringSafeArea(.all)
-                        
                 }
             
             VStack {
-               
                 Spacer()
                 
                 VStack {
@@ -62,68 +60,66 @@ struct ZenMusicView: View {
                                 Analytics.logEvent("alarm_view_opened", parameters: nil)
                                 isShowAlarmViewPresented.toggle()
                             }
-                            
                         } label: {
                             Image(systemName: "alarm.waves.left.and.right.fill")
                                 .font(.system(size: 23))
                                 .foregroundStyle(.white)
                                 .frame(width: 35, height: 35)
-                                
                         }
                         .padding()
-
+                        
                         Spacer()
-                        Text("For when counting sheep isn’t enough.")
+                        
+                        Text(getRandomSleepSentence())
                             .font(.caption)
                             .fontWeight(.bold)
                             .foregroundStyle(.white)
                             .lineLimit(2)
                             .padding()
                     }
+                    
                     HStack(spacing: 0) {
-                        
                         // Sounds Button
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedTab = "Sounds"
-                                Analytics.logEvent("tab_selected", parameters: ["tab": "Sounds"])
+                                selectedTab = .sounds
+                                Analytics.logEvent("tab_selected", parameters: ["tab": SelectedTab.sounds.rawValue])
                             }
                         }) {
                             ZStack {
                                 Rectangle()
-                                    .fill( selectedTab == "Sounds" ? Color.purple : Color.clear)
+                                    .fill(selectedTab == .sounds ? Color.purple : Color.clear)
                                     .cornerRadius(20)
-                                    .opacity(selectedTab == "Sounds" ? 1 : 0)
-                                    .offset(x: selectedTab == "Sounds" ? 0 : 200)
+                                    .opacity(selectedTab == .sounds ? 1 : 0)
+                                    .offset(x: selectedTab == .sounds ? 0 : 200)
                                 
-                                Text("Sounds")
+                                Text(SelectedTab.sounds.rawValue)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                    .foregroundColor(selectedTab == "Sounds" ? .white : .gray)
+                                    .foregroundColor(selectedTab == .sounds ? .white : .gray)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
-                                
                             }
                         }
                         
                         Spacer().frame(width: 10)
                         
-                        // Saved Button
+                        // Recommended Button
                         Button(action: {
                             withAnimation(.easeInOut(duration: 0.3)) {
-                                selectedTab = "Saved"
-                                Analytics.logEvent("tab_selected", parameters: ["tab": "Saved"])
+                                selectedTab = .recommended
+                                Analytics.logEvent("tab_selected", parameters: ["tab": SelectedTab.recommended.rawValue])
                             }
                         }) {
                             ZStack {
                                 Rectangle()
-                                    .fill( selectedTab == "Saved" ? Color.purple : Color.clear)
+                                    .fill(selectedTab == .recommended ? Color.purple : Color.clear)
                                     .cornerRadius(20)
-                                    .opacity(selectedTab == "Saved" ? 1 : 0)
-                                    .offset(x: selectedTab == "Saved" ? 0 : -200)
+                                    .opacity(selectedTab == .recommended ? 1 : 0)
+                                    .offset(x: selectedTab == .recommended ? 0 : -200)
                                 
-                                Text("Saved")
+                                Text(SelectedTab.recommended.rawValue)
                                     .font(.system(size: 16, weight: .bold, design: .monospaced))
-                                    .foregroundColor(selectedTab == "Saved" ? .white : .gray)
+                                    .foregroundColor(selectedTab == .recommended ? .white : .gray)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 10)
                             }
@@ -137,101 +133,103 @@ struct ZenMusicView: View {
                     .padding(.horizontal)
                 }
                 .padding(.top, 44)
-                //MARK: Horizontal category selection
-                VStack {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        //MARK: selected tab
-                        if selectedTab == "Saved" {
-                            HStack {
-                                Text("Your Saved Songs")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .padding(.horizontal)
-                                    .foregroundStyle(.white)
-                            }
-                        } else {
-                            HStack(spacing: 16) {
-                                ForEach(categories) { category in
-                                    Button(action: {
-                                        //MARK: Update selected category
-                                        withAnimation {
-                                            selectedCategory = category.name
+                
+                // MARK: Horizontal category selection
+                ScrollView(.vertical) {
+                    VStack {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            // Display categories only for Sounds tab
+                            if selectedTab == .recommended {
+                                HStack {
+                                    Text("Your Saved Mix Sounds")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .padding(.horizontal)
+                                        .foregroundStyle(.white)
+                                }
+                            } else {
+                                HStack(spacing: 16) {
+                                    ForEach(categories) { category in
+                                        Button(action: {
+                                            withAnimation {
+                                                selectedCategory = category.name
+                                            }
+                                        }) {
+                                            Text(category.name)
+                                                .font(.system(size: 14, weight: .regular, design: .monospaced))
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 8)
+                                                .background(selectedCategory == category.name ? Color.purple : Color.clear)
+                                                .foregroundColor(selectedCategory == category.name ? .white : .gray)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 20)
+                                                        .stroke(Color.purple, lineWidth: 1)
+                                                )
+                                                .cornerRadius(20)
                                         }
-                                        
-                                    }) {
-                                        Text(category.name)
-                                            .font(.system(size: 14, weight: .regular, design: .monospaced))
-                                            .padding(.horizontal, 16)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                selectedCategory == category.name ? Color.purple : Color.clear
-                                            )
-                                            .foregroundColor(
-                                                selectedCategory == category.name ? .white : .gray
-                                            )
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 20)
-                                                    .stroke(Color.purple, lineWidth: 1)
-                                            )
-                                            .cornerRadius(20)
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
+                        }
+                        .padding()
+                        
+                        // MARK: Sound Option Buttons or Saved Mixes
+                        if selectedTab == .recommended {
+                            VStack(spacing: 10) {
+                                if soundMixManager.savedCombinations.isEmpty {
+                                    ForEach(soundMixManager.getExampleMixes()) { mix in
+                                        SoundMixRow(soundMix: mix, onDelete: {
+                                            delete(soundMix: mix)
+                                        })
+                                        .transition(.fade)
+                                    }
+                                } else {
+                                    ForEach(soundMixManager.savedCombinations) { track in
+                                        SoundMixRow(soundMix: track, onDelete: {
+                                            delete(soundMix: track)
+                                        })
+                                        .transition(.fade)
                                     }
                                 }
                             }
-                            .padding(.horizontal)
-                        }
-                        
-                    }
-                    .padding()
-                    //MARK: Sound Option Buttons
-                    if selectedTab == "Saved" {
-                        
-                        VStack(spacing: 10) {
-                            if soundMixManager.savedCombinations.isEmpty {
-                                Text("No saved combinations yet.")
-                                    .font(.system(size: 14, weight: .regular, design: .monospaced))
-                                    .foregroundStyle(.white)
-                            } else {
-                                ForEach(soundMixManager.savedCombinations) { track in
-                                    SoundMixRow(soundMix: track, onDelete: {
-                                        delete(soundMix: track)
-                                    })
-                                    .transition(.fade)
+                            .padding()
+                            .animation(.easeInOut)
+                        } else {
+                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
+                                ForEach(filteredSounds) { sound in
+                                    SoundButton(sound: sound, audioMixer: audioMixer)
                                 }
                             }
-                            
+                            .padding()
+                            .animation(.easeInOut)
                         }
-                        .padding()
-                        .animation(.easeInOut)
-                    } else {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 20) {
-                            ForEach(filteredSounds) { sound in
-                                SoundButton(sound: sound, audioMixer: audioMixer)
-                            }
-                        }
-                        .padding()
-                        .animation(.easeInOut)
+                        
+                        Spacer()
                     }
-                    
-                    Spacer()
                 }
                 
                 Spacer()
             }
+            
+            // Bottom control panel and banner view
             VStack {
                 Spacer()
-                
-                CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented,
-                                        isSavedViewPresented: $isSaveCombinationViewPresented)
-                .padding()
-                
+                CollapsibleControlPanel(audioMixer: audioMixer,
+                                          isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented,
+                                          isSavedViewPresented: $isSaveCombinationViewPresented)
+                    .padding()
+                // Show BannerView if tab is Recommended or a specific category is selected (i.e. not "All")
+                if selectedTab == .recommended || selectedCategory != "All" {
+                    BannerView(adSizeGlobal)
+                        .frame(height: 50)
+                }
             }
         }
         .fullScreenCover(isPresented: $isRelaxingMusicViewPresented) {
-          
             RelaxingMusicView()
         }
         .fullScreenCover(isPresented: $isShowAlarmViewPresented) {
             SetAlarmView()
-                
         }
         .sheet(isPresented: $isSaveCombinationViewPresented) {
             SleepMixView(sounds: $audioMixer.selectedSounds)
@@ -240,7 +238,11 @@ struct ZenMusicView: View {
         }
         .onAppear {
             isRelaxingMusicViewPresented = AppSetting.shared.isOpenFromWidget
-        }.onChange(of: settingApp.isOpenFromWidget) { newValue in
+            Task {
+                try await TracklistManager.shared.fetchTracklist()
+            }
+        }
+        .onChange(of: settingApp.isOpenFromWidget) { newValue in
             if newValue {
                 isRelaxingMusicViewPresented = newValue
             }
@@ -248,11 +250,31 @@ struct ZenMusicView: View {
     }
     
     private func delete(soundMix: SoundMix) {
-           withAnimation {
-               SoundMixManager.shared.removeCombination(soundMix: soundMix)
-           }
+        withAnimation {
+            SoundMixManager.shared.removeCombination(soundMix: soundMix)
+        }
     }
     
+    func getRandomSleepSentence() -> String {
+        let sentences = [
+            "Press play and let the snooze begin.",
+            "Making bedtime your favorite time.",
+            "Because your brain deserves a break too.",
+            "The ultimate 'Do Not Disturb' mode.",
+            "Drifting into dreams, one sound at a time.",
+            "No sheep were harmed in the making of this sleep aid.",
+            "Sounds so good, even your insomnia is impressed.",
+            "Turn your night into a peaceful symphony.",
+            "Dream like you mean it.",
+            "For those nights when silence is just too loud.",
+            "Helping you sleep harder than a rock.",
+            "Your personal DJ for dreamland.",
+            "Why fight sleep when you can embrace it?",
+            "The best lullaby is the one you don’t remember.",
+            "Soft sounds, deep dreams, no stress."
+        ]
+        return sentences.randomElement() ?? "Sweet dreams, sleep tight!"
+    }
 }
 
 struct SoundButton: View {
@@ -263,19 +285,9 @@ struct SoundButton: View {
         audioMixer.selectedSounds.contains(where: { $0.name == sound.name })
     }
     @State private var dragOffset: CGSize = .zero
-
+    
     var body: some View {
-        
-        
-        
         ZStack {
-//            LinearGradient(
-//                gradient: Gradient(colors: isHighlighted ? gradientColorsBasedOnOffset() : [Color.gray.opacity(0.3), Color.gray.opacity(0.1)]),
-//                startPoint: .topLeading,
-//                endPoint: .bottomTrailing
-//            )
-//            .frame(width: 80, height: min(100 + dragOffset.height, 100))
-                        
             VStack {
                 Spacer()
                 Rectangle()
@@ -287,29 +299,24 @@ struct SoundButton: View {
                     .frame(width: 80, height: isHighlighted ? min(100 - dragOffset.height, 100) : 100)
                     .cornerRadius(10)
                     .shadow(radius: 10)
-                
-                    
             }
             Button(action: {
-                //MARK: Toggle highlight on button press
                 if isHighlighted {
-                    // Remove the sound when unselected
                     removeSound(sound: sound.audioFile ?? "")
                     Analytics.logEvent("sound_removed", parameters: [
-                        "sound_name": sound.name,
+                        "sound_name": sound.name
                     ])
                 } else {
-                    // Play the sound when selected
                     playSound(sound: sound.audioFile ?? "")
                     Analytics.logEvent("sound_selected", parameters: [
-                        "sound_name": sound.name,
+                        "sound_name": sound.name
                     ])
                 }
             }) {
                 VStack(spacing: 10) {
-                    Image(systemName: sound.icon) // Replace with your custom icons if needed
+                    Image(systemName: sound.icon)
                         .font(.system(size: 20))
-                        .foregroundColor(isHighlighted ? .white : .gray) // Highlight color on press
+                        .foregroundColor(isHighlighted ? .white : .gray)
                     Text(sound.name)
                         .foregroundColor(isHighlighted ? .white : .gray)
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
@@ -321,43 +328,26 @@ struct SoundButton: View {
                         .onChanged { gesture in
                             self.dragOffset = CGSize(width: 0, height: gesture.translation.height)
                         }
-                        .onEnded { _ in
-                            // Optionally, add logic to snap back or limit movement
-                        }
+                        .onEnded { _ in }
                 )
             }
         }
         .frame(height: 100)
     }
     
-    func gradientColorsBasedOnOffset() -> [Color] {
-        let offsetFactor = dragOffset.height / 300 // Adjust the divisor to control sensitivity
-        let startColor = Color.purple.opacity(0.7 - Double(offsetFactor)) // Start color becomes darker as you drag
-        let endColor = Color.blue.opacity(0.7 + Double(offsetFactor)) // End color becomes lighter as you drag
-        
-        return [startColor, endColor]
-    }
-    
-    //MARK:  Function to trigger sound
     func playSound(sound: String) {
         if audioMixer.isPlaySaved {
             audioMixer.resetMixedAudio()
         }
         audioMixer.loadAudioFile(sound)
         audioMixer.selectedSounds.append(self.sound)
-        // Play the sound using AudioMixer
         audioMixer.playMixedAudio()
     }
     
-    //MARK:  Function to remove sound
     func removeSound(sound: String) {
-        // Remove the sound from the AudioMixer
         audioMixer.removeAudioFile(sound)
-        audioMixer.selectedSounds.removeAll { sound1 in
-            return sound1.id == self.sound.id
-        }
+        audioMixer.selectedSounds.removeAll { $0.id == self.sound.id }
     }
-    
 }
 
 struct ZenMusicView_Previews: PreviewProvider {

@@ -125,53 +125,61 @@ class TracklistManager:ObservableObject {
     
     
     func fetchTracklist() async throws {
-        DispatchQueue.main.async {
-            self.tracklists.removeAll()
-            self.allTracks.removeAll()
-        }
+        // Local collections to store data
+        var localTracklists: [Tracklist] = []
+        var localAllTracks: [Track] = []
+
+        // Fetch all tracklist documents
+        let tracklistsSnapshot = try await db.collection("trackLists").getDocuments()
+        let now = Date()
         
-        let db = Firestore.firestore()
-        let tracklistRef = db.collection("trackLists")
-        // Step 1: Fetch the tracklist document asynchronously
-        let tracklistsSnapshot = try await tracklistRef.getDocuments()
-        var index = 0
-        for document in tracklistsSnapshot.documents {
-            // Decode the tracklist
-            if var tracklist = try? document.data(as: Tracklist.self) {
-                // Append the tracklist to the tracklists array
-                
-                tracklist.id = document.documentID
-                tracklist.idShow = index
-                // Fetch the tracks for this tracklist, ordered by rating and viewCount
-                let tracksSnapshot = try await  db.collection("trackLists")
-                    .document(document.documentID)
-                    .collection("tracks")
-                    .getDocuments()
-                
-                // Decode the tracks and assign tracklistID
-                let tracks: [Track] = tracksSnapshot.documents.compactMap { doc in
-                    var track = try? doc.data(as: Track.self)
-                    track?.id = doc.documentID
-                    track?.tracklistID = document.documentID
-                    track?.nameOfTracklist = tracklist.title
-                    return track
+        // Use a throwing task group to fetch tracks concurrently
+        try await withThrowingTaskGroup(of: Tracklist?.self) { group in
+            
+            for document in tracklistsSnapshot.documents {
+                group.addTask {
+                    var tracklist = try? document.data(as: Tracklist.self)
+                    tracklist?.id = document.documentID
+
+                    
+                    // Fetch associated tracks
+                    let tracksSnapshot = try await self.db.collection("trackLists").document(document.documentID).collection("tracks").getDocuments()
+                    let tracks: [Track] = tracksSnapshot.documents.compactMap { doc in
+                        var track = try? doc.data(as: Track.self)
+                        track?.id = doc.documentID
+                        track?.tracklistID = document.documentID
+                        track?.nameOfTracklist = tracklist?.title
+                        return track
+                    }
+                    tracklist?.tracks = tracks
+                    
+                    return tracklist
                 }
-                tracklist.tracks = tracks
-                DispatchQueue.main.async {
-                    self.allTracks.append(contentsOf: tracks)
-                    self.tracklists.append(tracklist)
+            }
+
+            // Collect results from the task group
+            for try await tracklist in group {
+                if let tracklist = tracklist {
+                    localTracklists.append(tracklist)
+                    localAllTracks.append(contentsOf: tracklist.tracks ?? [])
                 }
-               
-                index += 1
-                
             }
         }
+
+        // Update properties on the main thread
         DispatchQueue.main.async {
-            self.tracklists = self.tracklists.sorted { tracklist1, tracklist2 in
-                return tracklist1.rating ?? 0 > tracklist2.rating ?? 0
+            self.tracklists = localTracklists.sorted { $0.rating ?? 0 > $1.rating ?? 0 }
+            self.allTracks = localAllTracks
+        }
+        print("total loaded time loaded : \(Date().timeIntervalSince1970 - now.timeIntervalSince1970)")
+        // Save liked tracks in the background
+        DispatchQueue.global().async {
+            do {
+                try self.fetchAndSaveLikedTracks()
+            } catch {
+                print("Failed to save liked tracks: \(error)")
             }
         }
-        try fetchAndSaveLikedTracks()
     }
     
     func likeTracklist(_ tracklistID: String) {

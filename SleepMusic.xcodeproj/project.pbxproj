@@ -17,6 +17,8 @@
 		F9194ECB2CD346E8006432F0 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F9194ECA2CD346E8006432F0 /* FirebaseFirestore */; };
 		F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */; };
 		F951FD482CCA46910011709D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = F951FD472CCA46910011709D /* Lottie */; };
+		F96BACD32CDA8028000AF43A /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F96BACD22CDA8028000AF43A /* FirebaseMessaging */; };
+		F9C8F79D2D68905C009AE489 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = F9C8F79C2D68905C009AE489 /* GoogleMobileAds */; };
 		F9DEB58B2CBFA87B00BA2A50 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */; };
 		F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF81782CBE540E00BBEE95 /* FirebaseAnalytics */; };
 		F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F9DF817A2CBE540E00BBEE95 /* FirebaseAuth */; };
@@ -114,6 +116,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F9C8F79D2D68905C009AE489 /* GoogleMobileAds in Frameworks */,
 				F9F712B82CC17787008A6260 /* FirebaseRemoteConfig in Frameworks */,
 				F9DF81792CBE540E00BBEE95 /* FirebaseAnalytics in Frameworks */,
 				F9DF817F2CBE540E00BBEE95 /* FirebaseCrashlytics in Frameworks */,
@@ -123,6 +126,7 @@
 				F92D82852CC0AE4A002157EA /* SDWebImageSwiftUI in Frameworks */,
 				F9DF81812CBE540E00BBEE95 /* FirebaseFirestore in Frameworks */,
 				F9DF817B2CBE540E00BBEE95 /* FirebaseAuth in Frameworks */,
+				F96BACD32CDA8028000AF43A /* FirebaseMessaging in Frameworks */,
 				F9DF81832CBE540E00BBEE95 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -218,6 +222,8 @@
 				F92D82842CC0AE4A002157EA /* SDWebImageSwiftUI */,
 				F9F712B72CC17787008A6260 /* FirebaseRemoteConfig */,
 				F951FD472CCA46910011709D /* Lottie */,
+				F96BACD22CDA8028000AF43A /* FirebaseMessaging */,
+				F9C8F79C2D68905C009AE489 /* GoogleMobileAds */,
 			);
 			productName = SleepMusic;
 			productReference = F9BAD8AC2CBC3FB5006F6095 /* SleepMusic.app */;
@@ -255,6 +261,7 @@
 				F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 				F92D82832CC0AE4A002157EA /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				F951FD462CCA46910011709D /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				F9C8F79B2D68905C009AE489 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F9BAD8AD2CBC3FB5006F6095 /* Products */;
@@ -511,7 +518,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -546,7 +553,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3;
+				MARKETING_VERSION = 1.7;
 				PRODUCT_BUNDLE_IDENTIFIER = vn.cyme.SleepMusic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -604,6 +611,14 @@
 				minimumVersion = 4.5.0;
 			};
 		};
+		F9C8F79B2D68905C009AE489 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.8.0;
+			};
+		};
 		F9DEB5892CBFA87B00BA2A50 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher";
@@ -657,6 +672,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F951FD462CCA46910011709D /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		F96BACD22CDA8028000AF43A /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9DF81772CBE540E00BBEE95 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		F9C8F79C2D68905C009AE489 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F9C8F79B2D68905C009AE489 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 		F9DEB58A2CBFA87B00BA2A50 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
