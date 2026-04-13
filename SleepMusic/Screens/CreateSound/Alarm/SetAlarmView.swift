@@ -1,372 +1,121 @@
-//
-//  SetAlarmView.swift
-//  SleepMusic
-//
-//  Created by QuangHo on 21/10/24.
-//
-
 import SwiftUI
 import UserNotifications
 import FirebaseAnalytics
 
 struct SetAlarmView: View {
-    @State private var startTime: Double = 0.0 // 10 PM
-    @State private var endTime: Double = 8.0    // 6 AM
-    let days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-    @State var selectedDays = [true, true, true, true, true, false, false] // Mo to Fr selected, Sa and Su not selected
-    @State private var showDatePicker = false
+    let showsCloseButton: Bool
+
+    private let days = ["M", "T", "W", "T", "F", "S", "S"]
+
+    @State private var selectedDays = [false, true, true, true, true, false, false]
     @State private var selectedDate = Date()
-    @State private var isSelectingBedtime = false // To differentiate between Bedtime and Wake up
-    
-    @State private var bedtime: Date = Calendar.current.date(bySettingHour: 23, minute: 0, second: 0, of: Date()) ?? Date() // Default to 11:00 PM
-    @State private var wakeupTime: Date = Calendar.current.date(bySettingHour: 7, minute: 0, second: 0, of: Date()) ?? Date() // Default to 7:00 AM
-    @State private var showAlarmSoundPicker = false // To control the display of the sound picker sheet
-    @State private var selectedAlarmSound: String = "Colombia EAS Alarm" // The currently selected alarm sound
-    // Add a new State variable to hold the alarm name
-    @State private var alarmName: String = ""
-    
+    @State private var editingField: AlarmEditableField?
+    @State private var bedtime = Calendar.current.date(bySettingHour: 23, minute: 30, second: 0, of: Date()) ?? Date()
+    @State private var wakeupTime = Calendar.current.date(bySettingHour: 7, minute: 45, second: 0, of: Date()) ?? Date()
+    @State private var showAlarmSoundPicker = false
+    @State private var selectedAlarmSound = "Colombia EAS Alarm"
+    @State private var alarmName = "Morning Light"
+    @State private var showAlertSuccess = false
+
     @State var alarmViewModel = AlarmSoundViewModel()
-    @State  var showAlertSuccess = false
-    
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.dismiss) private var dismiss
+
+    init(showsCloseButton: Bool = false) {
+        self.showsCloseButton = showsCloseButton
+    }
+
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [Color(red: 0.06, green: 0.06, blue: 0.08), Color.black]),
-                           startPoint: .top, endPoint: .bottom)
-            .edgesIgnoringSafeArea(.all)
-            .overlay {
-                Image("bg_alarm_2")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.all)
-            }
-            
-            VStack {
-                
-                HStack {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 18))
-                            .frame(width: 35, height: 35)
-                            .foregroundColor(.white)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
-                            .shadow(color: .black.opacity(0.3), radius: 5, x: 2, y: 2)
-                    }
-                    .padding([.horizontal, .top])
-                    Spacer()
-                    Button {
-                        
+            LuminousBackground()
+
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading, spacing: 24) {
+                    topBar
+                    titleBlock
+                    dialSection
+                    repeatSection
+                    timeCards
+                    settingsGrid
+                    LuminousPrimaryButton(title: "Save Alarm") {
                         scheduleAlarm()
-                        showAlertSuccess.toggle()
+                        showAlertSuccess = true
                         Analytics.logEvent("alarm_saved", parameters: [
                             "bedtime": formatTime(date: bedtime),
                             "wakeup_time": formatTime(date: wakeupTime),
                             "days_selected_count": selectedDays.filter { $0 }.count,
                             "alarm_name": alarmName
                         ])
-                    } label: {
-                        Text("Save")
-                            .foregroundColor(.white)
-                            .font(.system(size: 13, weight: .medium, design: .monospaced))
                     }
-                    .padding(.horizontal)
-                    .disabled(alarmName.isEmpty)
+                    .disabled(alarmName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .opacity(alarmName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.55 : 1)
+
+                    Spacer(minLength: 120)
                 }
-                
-                GeometryReader { geometry in
-                    let screenWidth = geometry.size.width
-                    let desiredSize = screenWidth * 0.5
-                    
-                    VStack {
-                        CircularSleepDurationView(startTime: $startTime, endTime: $endTime)
-                            .frame(width: desiredSize, height: desiredSize)
-                    }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                }
-                HStack(spacing: 15) {
-                    ForEach(0..<days.count, id: \.self) { index in
-                        Button(action: {
-                            // Toggle the selected state
-                            selectedDays[index].toggle()
-                        }) {
-                            Text(days[index])
-                                .font(.system(.caption2))
-                                .frame(width: 40, height: 40)
-                                .foregroundColor(selectedDays[index] ? .white : .gray)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 10)
-                                        .stroke(selectedDays[index] ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.gray, lineWidth: 2)
-                                        .background(
-                                            selectedDays[index] ? Color(red: 0.7, green: 0.5, blue: 0.9) : Color.clear
-                                        )
-                                        .cornerRadius(10)
-                                )
-                            
-                            
-                        }
-                    }
-                }
-                .padding()
-                
-                
-                HStack(spacing: 25) {
-                    // Bedtime View
-                    VStack(alignment: .leading,spacing: 10) {
-                        HStack {
-                            Image(systemName: "bed.double.fill")
-                                .foregroundColor(.gray)
-                            Text("Bedtime")
-                                .font(.system(size: 13, weight: .regular, design: .monospaced))
-                                .foregroundStyle(.gray)
-                        }
-                        Text(formatTime(date: bedtime))
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 64)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.1))
-                            .shadow(radius: 5)
-                    )
-                    .cornerRadius(20)
-                    .onTapGesture {
-                        isSelectingBedtime = true
-                        selectedDate = bedtime
-                        withAnimation {
-                            showDatePicker.toggle()
-                        }
-                    }
-                    // Wake up View
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack {
-                            Image(systemName: "alarm.fill")
-                                .foregroundColor(.gray)
-                            Text("Wake up")
-                                .font(.system(size: 13, weight: .regular, design: .monospaced))
-                                .foregroundStyle(.gray)
-                        }
-                        Text(formatTime(date: wakeupTime))
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 64)
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.1))
-                            .shadow(radius: 5)
-                    )
-                    .cornerRadius(20)
-                    .onTapGesture {
-                        isSelectingBedtime = false
-                        selectedDate = wakeupTime
-                        withAnimation {
-                            showDatePicker.toggle()
-                        }
-                    }
-                }
-                .padding()
-                //MARK: -- set alarm sound
-                HStack {
-                    // Artwork Image (if available)
-                    Image("img_1")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(.white)
-                        .background(Color.gray)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    
-                    // Song title and duration
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Alarm sound")
-                            .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                        
-                        Text("Morning sunset")
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundColor(.gray)
-                    }
-                    Spacer()
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "chevron.forward")
-                            .foregroundStyle(.white.opacity(0.3))
-                            .font(.system(size: 15))
-                    }
-                    .padding()
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.1))
-                        .shadow(radius: 5)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    self.showAlarmSoundPicker.toggle()
-                }
-                //MARK: -- set alarm interval
-                HStack {
-                    
-                    Image(systemName: "hourglass")
-                        .font(.system(size: 18))
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(.white)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                                .shadow(radius: 5)
-                        )
-                    
-                    //MARK: -- Song title and duration
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Repeat interval")
-                            .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                        
-                        Text("5 minutes")
-                            .font(.system(size: 13, weight: .bold, design: .monospaced))
-                            .foregroundColor(.gray)
-                    }
-                    Spacer()
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "chevron.forward")
-                            .foregroundStyle(.white.opacity(0.3))
-                            .font(.system(size: 15))
-                    }
-                    .padding()
-                    
-                    
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.1))
-                        .shadow(radius: 5)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    
-                }
-                //MARK: -- set alarm name
-                HStack {
-                    // Artwork Image (if available)
-                    Image(systemName: "keyboard")
-                        .font(.system(size: 18))
-                        .frame(width: 50, height: 50)
-                        .foregroundColor(.white)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                                .shadow(radius: 5)
-                        )
-                    
-                    // Song title and duration
-                    VStack(alignment: .leading, spacing: 10) {
-                        
-                        Text("Alarm name")
-                            .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                        
-                        ZStack(alignment: .leading) {
-                            if alarmName.isEmpty {
-                                Text("Enter alarm name")
-                                    .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                    .foregroundColor(.gray) // Set placeholder color here
-                                    .padding(.top, 4)
-                            }
-                            
-                            TextField("", text: $alarmName)
-                                .font(.system(size: 13, weight: .bold, design: .monospaced))
-                                .foregroundColor(.gray) // Set text color here
-                                .padding(.top, 4)
-                                .textFieldStyle(PlainTextFieldStyle())
-                        }
-                    }
-                    Spacer()
-                    Button {
-                        
-                    } label: {
-                        Image(systemName: "chevron.forward")
-                            .foregroundStyle(.white.opacity(0.3))
-                            .font(.system(size: 15))
-                    }
-                    .padding()
-                    
-                    
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(Color.white.opacity(0.1))
-                        .shadow(radius: 5)
-                )
-                .padding(.horizontal)
-                .onTapGesture {
-                    
-                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, 24)
             }
-            
-            if showDatePicker {
-                Color.black.opacity(0.7).edgesIgnoringSafeArea(.all)
-                    .transition(.opacity)
-                    .animation(.easeInOut, value: showDatePicker)
-                VStack {
-                    DatePicker("", selection: $selectedDate, displayedComponents: .hourAndMinute)
-                        .datePickerStyle(WheelDatePickerStyle())
-                        .labelsHidden()
-                        .background(Color(red: 0.1, green: 0.1, blue: 0.12))
-                        .cornerRadius(20)
-                        .padding()
-                        .transition(.opacity)
-                        .accentColor(Color(red: 0.7, green: 0.5, blue: 0.9))
-                        .colorScheme(.dark)
-                        .animation(.easeInOut, value: showDatePicker)
-                    
-                    Button {
-                        withAnimation {
-                            if isSelectingBedtime {
-                                bedtime = selectedDate
-                            } else {
-                                wakeupTime = selectedDate
-                            }
-                            showDatePicker = false
-                        }
-                        
-                    } label: {
-                        Text("Done")
-                            .font(.system(size: 15, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                            .padding()
-                            .cornerRadius(10)
-                    }
-                    .background(
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.white.opacity(0.1))
-                            .shadow(radius: 5)
+
+            if let editingField {
+                Color.black.opacity(0.72)
+                    .ignoresSafeArea()
+
+                VStack(spacing: 16) {
+                    Text(editingField == .bedtime ? "Adjust bedtime" : "Adjust wake up")
+                        .font(LuminousType.headline(22, weight: .bold))
+                        .foregroundStyle(LuminousPalette.textPrimary)
+
+                    DatePicker(
+                        "",
+                        selection: $selectedDate,
+                        displayedComponents: .hourAndMinute
                     )
-                    
+                    .datePickerStyle(.wheel)
+                    .labelsHidden()
+                    .tint(LuminousPalette.primary)
+                    .colorScheme(.dark)
+                    .padding(.horizontal)
+
+                    HStack(spacing: 12) {
+                        Button("Cancel") {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                self.editingField = nil
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .font(LuminousType.body(15, weight: .semibold))
+                        .foregroundStyle(LuminousPalette.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .luminousGlassCard(cornerRadius: 22, fillColor: LuminousPalette.surfaceLow)
+
+                        LuminousPrimaryButton(title: "Apply") {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                if editingField == .bedtime {
+                                    bedtime = selectedDate
+                                } else {
+                                    wakeupTime = selectedDate
+                                }
+                                self.editingField = nil
+                            }
+                        }
+                    }
                 }
+                .padding(24)
+                .luminousGlassCard(cornerRadius: 32, fillColor: LuminousPalette.surfaceContainer)
+                .padding(.horizontal, 20)
             }
         }
         .sheet(isPresented: $showAlarmSoundPicker) {
-            
             AlarmSoundSelectionView(selectedAlarm: $selectedAlarmSound, alarmViewModel: alarmViewModel)
-                .presentationDetents([.large]) // You can specify medium and large sizes
-                .presentationDragIndicator(.visible) // Optional drag indicator
-            
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
         }
-        
         .alert("Alarm", isPresented: $showAlertSuccess) {
             Button("OK", role: .cancel) {
-                dismiss()
+                if showsCloseButton {
+                    dismiss()
+                }
             }
         } message: {
             Text("Set alarm successfully!")
@@ -375,7 +124,206 @@ struct SetAlarmView: View {
             requestNotificationPermission()
         }
     }
-    func requestNotificationPermission() {
+
+    private var topBar: some View {
+        HStack {
+            if showsCloseButton {
+                LuminousIconButton(icon: "xmark") {
+                    dismiss()
+                }
+            } else {
+                LuminousIconButton(icon: "gearshape.fill", isAccent: true, action: {})
+            }
+
+            Spacer()
+
+            Text("SleepMusic")
+                .font(LuminousType.body(18, weight: .semibold))
+                .foregroundStyle(LuminousPalette.textPrimary)
+
+            Spacer()
+
+            Circle()
+                .fill(LuminousPalette.accentGradient)
+                .frame(width: 38, height: 38)
+                .overlay(
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Color(red: 53 / 255, green: 20 / 255, blue: 79 / 255))
+                )
+        }
+    }
+
+    private var titleBlock: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("SMART WAKEUP")
+                .font(LuminousType.label(11, weight: .bold))
+                .tracking(2.1)
+                .foregroundStyle(LuminousPalette.secondary)
+
+            Text("Set Sleep Goal")
+                .font(LuminousType.display(40, weight: .bold))
+                .foregroundStyle(LuminousPalette.textPrimary)
+
+            Text("Quiet routines, repeated gently, so tomorrow starts with less friction.")
+                .font(LuminousType.body(15))
+                .foregroundStyle(LuminousPalette.textSecondary)
+        }
+    }
+
+    private var dialSection: some View {
+        CircularSleepDurationView(bedtime: $bedtime, wakeupTime: $wakeupTime)
+            .frame(height: 320)
+            .frame(maxWidth: .infinity)
+    }
+
+    private var repeatSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Repeat")
+                        .font(LuminousType.headline(24, weight: .bold))
+                        .foregroundStyle(LuminousPalette.textPrimary)
+
+                    Text("Wake up feeling refreshed every day")
+                        .font(LuminousType.body(14))
+                        .foregroundStyle(LuminousPalette.textSecondary)
+                }
+
+                Spacer()
+
+                Text(selectedDays.filter { $0 }.count >= 5 ? "Everyday" : "Custom")
+                    .font(LuminousType.body(14, weight: .semibold))
+                    .foregroundStyle(LuminousPalette.primary)
+            }
+
+            HStack(spacing: 10) {
+                ForEach(days.indices, id: \.self) { index in
+                    Button {
+                        selectedDays[index].toggle()
+                    } label: {
+                        Text(days[index])
+                            .font(LuminousType.label(11, weight: .bold))
+                            .foregroundStyle(selectedDays[index] ? Color(red: 53 / 255, green: 20 / 255, blue: 79 / 255) : LuminousPalette.textSecondary)
+                            .frame(width: 38, height: 38)
+                            .background(
+                                Circle()
+                                    .fill(selectedDays[index] ? AnyShapeStyle(LuminousPalette.primaryGradient) : AnyShapeStyle(LuminousPalette.surfaceHigh))
+                                    .overlay(Circle().stroke(LuminousPalette.ghostBorder, lineWidth: selectedDays[index] ? 0 : 1))
+                            )
+                            .shadow(color: selectedDays[index] ? LuminousPalette.primary.opacity(0.25) : .clear, radius: 18, x: 0, y: 8)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private var timeCards: some View {
+        HStack(spacing: 12) {
+            timingCard(icon: "bed.double.fill", title: "Bedtime", value: formatTime(date: bedtime)) {
+                selectedDate = bedtime
+                editingField = .bedtime
+            }
+
+            timingCard(icon: "alarm.fill", title: "Wake up", value: formatTime(date: wakeupTime)) {
+                selectedDate = wakeupTime
+                editingField = .wakeup
+            }
+        }
+    }
+
+    private var settingsGrid: some View {
+        VStack(spacing: 12) {
+            HStack(spacing: 12) {
+                actionCard(
+                    icon: "bell.and.waves.left.and.right.fill",
+                    eyebrow: "Sound",
+                    title: selectedAlarmSound,
+                    subtitle: "Preview and choose alarm tone"
+                ) {
+                    showAlarmSoundPicker = true
+                }
+
+                actionCard(
+                    icon: "wand.and.stars.inverse",
+                    eyebrow: "Sleep",
+                    title: selectedDays.filter { $0 }.count >= 5 ? "Gentle cadence" : "Custom rhythm",
+                    subtitle: "\(selectedDays.filter { $0 }.count) active nights"
+                ) {}
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text("Alarm label")
+                    .font(LuminousType.body(14, weight: .semibold))
+                    .foregroundStyle(LuminousPalette.textPrimary)
+
+                TextField(
+                    "",
+                    text: $alarmName,
+                    prompt: Text("Enter a name")
+                        .foregroundColor(LuminousPalette.textSecondary)
+                )
+                .font(LuminousType.body(15))
+                .foregroundStyle(LuminousPalette.textPrimary)
+            }
+            .padding(18)
+            .luminousGlassCard(cornerRadius: 24, fillColor: LuminousPalette.surfaceLow)
+        }
+    }
+
+    private func timingCard(icon: String, title: String, value: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 14) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(LuminousPalette.primary)
+
+                Text(title)
+                    .font(LuminousType.body(13))
+                    .foregroundStyle(LuminousPalette.textSecondary)
+
+                Text(value)
+                    .font(LuminousType.headline(22, weight: .bold))
+                    .foregroundStyle(LuminousPalette.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(20)
+            .luminousGlassCard(cornerRadius: 26, fillColor: LuminousPalette.surfaceLow)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func actionCard(icon: String, eyebrow: String, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 14) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(LuminousPalette.secondary)
+
+                Text(eyebrow.uppercased())
+                    .font(LuminousType.label(10, weight: .bold))
+                    .tracking(1.6)
+                    .foregroundStyle(LuminousPalette.textSecondary)
+
+                Text(title)
+                    .font(LuminousType.body(16, weight: .semibold))
+                    .foregroundStyle(LuminousPalette.textPrimary)
+                    .lineLimit(2)
+
+                Text(subtitle)
+                    .font(LuminousType.body(13))
+                    .foregroundStyle(LuminousPalette.textSecondary)
+                    .lineLimit(2)
+            }
+            .frame(maxWidth: .infinity, minHeight: 156, alignment: .leading)
+            .padding(18)
+            .luminousGlassCard(cornerRadius: 26, fillColor: LuminousPalette.surfaceLow)
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func requestNotificationPermission() {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             if granted {
                 DispatchQueue.main.async {
@@ -386,111 +334,63 @@ struct SetAlarmView: View {
             }
         }
     }
-    
-    // Schedule the alarm when the save button is tapped
-    func scheduleAlarm() {
+
+    private func scheduleAlarm() {
         let center = UNUserNotificationCenter.current()
-        center.requestAuthorization(options: [.alert, .sound]) { granted, error in
+        center.requestAuthorization(options: [.alert, .sound]) { granted, _ in
             if granted {
                 scheduleLocalNotifications()
-            } else {
-                print("Permission denied.")
             }
         }
     }
-    
-    //    func scheduleLocalNotifications() {
-    //        let center = UNUserNotificationCenter.current()
-    //
-    //        for (index, isSelected) in selectedDays.enumerated() {
-    //            if isSelected {
-    //                let content = UNMutableNotificationContent()
-    //                content.title = "Alarm"
-    //                content.body = "Time to wake up!"
-    //                content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "severe-warning-alarm-98704.wav"))
-    //
-    //                var dateComponents = DateComponents()
-    //                dateComponents.hour = Calendar.current.component(.hour, from: wakeupTime)
-    //                dateComponents.minute = Calendar.current.component(.minute, from: wakeupTime)
-    //
-    //                // Map index to weekday (1 = Sunday, 7 = Saturday)
-    //                var weekday = index + 2
-    //                if weekday > 7 {
-    //                    weekday -= 7
-    //                }
-    //                dateComponents.weekday = weekday
-    //
-    //                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-    //
-    //                let uuidString = UUID().uuidString
-    //                let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
-    //
-    //                center.add(request) { (error) in
-    //                    if let error = error {
-    //                        print("Error scheduling notification: \(error)")
-    //                    } else {
-    //                        print("Notification scheduled for weekday \(dateComponents.weekday ?? 0)")
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    func scheduleLocalNotifications() {
+
+    private func scheduleLocalNotifications() {
         let center = UNUserNotificationCenter.current()
-        
+
         Task {
-            // Find the selected alarm sound from the view model
             guard let selectedAlarm = alarmViewModel.alarmSounds.first(where: { $0.name == selectedAlarmSound }) else {
                 print("Selected alarm sound not found")
                 return
             }
-            
-            
-            // Now that the sound is downloaded, schedule the notifications
-            for (index, isSelected) in selectedDays.enumerated() {
-                if isSelected {
-                    let content = UNMutableNotificationContent()
-                    content.title = "Alarm"
-                    content.body = self.alarmName
-                    
-                    // Use the downloaded sound file
-                    content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "\(selectedAlarm.id).wav"))
-                    
-                    var dateComponents = DateComponents()
-                    dateComponents.hour = Calendar.current.component(.hour, from: wakeupTime)
-                    dateComponents.minute = Calendar.current.component(.minute, from: wakeupTime)
-                    
-                    // Map index to weekday (1 = Sunday, 7 = Saturday)
-                    var weekday = index + 2
-                    if weekday > 7 {
-                        weekday -= 7
-                    }
-                    dateComponents.weekday = weekday
-                    
-                    let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-                    
-                    let uuidString = UUID().uuidString
-                    let request = UNNotificationRequest(identifier: uuidString, content: content, trigger: trigger)
-                    
-                    center.add(request) { (error) in
-                        if let error = error {
-                            print("Error scheduling notification: \(error)")
-                        } else {
-                            print("Notification scheduled for weekday \(dateComponents.weekday ?? 0)")
-                        }
+
+            for (index, isSelected) in selectedDays.enumerated() where isSelected {
+                let content = UNMutableNotificationContent()
+                content.title = "Alarm"
+                content.body = alarmName
+                content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "\(selectedAlarm.id).wav"))
+
+                var dateComponents = DateComponents()
+                dateComponents.hour = Calendar.current.component(.hour, from: wakeupTime)
+                dateComponents.minute = Calendar.current.component(.minute, from: wakeupTime)
+
+                var weekday = index + 2
+                if weekday > 7 {
+                    weekday -= 7
+                }
+                dateComponents.weekday = weekday
+
+                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+                let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+
+                center.add(request) { error in
+                    if let error {
+                        print("Error scheduling notification: \(error)")
                     }
                 }
             }
         }
     }
-    
-    // Helper function to format the time as "hh : mm a"
+
     private func formatTime(date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "hh : mm a"
+        formatter.dateFormat = "hh:mm a"
         return formatter.string(from: date)
     }
+}
+
+private enum AlarmEditableField {
+    case bedtime
+    case wakeup
 }
 
 #Preview {

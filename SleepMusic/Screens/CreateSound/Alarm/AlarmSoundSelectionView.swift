@@ -1,70 +1,76 @@
-//
-//  AlarmSoundSelectionView.swift
-//  SleepMusic
-//
-//  Created by QuangHo on 23/10/24.
-//
 import SwiftUI
 
 struct AlarmSoundSelectionView: View {
     @Binding var selectedAlarm: String
-    @ObservedObject var alarmViewModel: AlarmSoundViewModel // Changed to ObservedObject
-    
-    @Environment(\.dismiss) var dismiss
-    
+    @ObservedObject var alarmViewModel: AlarmSoundViewModel
+    @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         ZStack {
-            Color.black.opacity(0.9).edgesIgnoringSafeArea(.all) // Dark background
-            
-            VStack(spacing: 20) {
-                Text("Select Alarm Sound")
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .foregroundColor(.white)
-                    .padding(.top)
-                
-                // Scrollable grid of alarm sound options
-                ScrollView {
-                    VStack(spacing: 15) {
+            LuminousBackground()
+
+            VStack(alignment: .leading, spacing: 18) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("WAKE TONES")
+                            .font(LuminousType.label(11, weight: .bold))
+                            .tracking(2)
+                            .foregroundStyle(LuminousPalette.secondary)
+
+                        Text("Select Alarm Sound")
+                            .font(LuminousType.display(32, weight: .bold))
+                            .foregroundStyle(LuminousPalette.textPrimary)
+                    }
+
+                    Spacer()
+
+                    LuminousIconButton(icon: "xmark") {
+                        AudioPlayer.shared.stopPlayAlarm()
+                        dismiss()
+                    }
+                }
+
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 12) {
                         ForEach(alarmViewModel.alarmSounds, id: \.id) { alarm in
-                            HStack {
-                                Text(alarm.name)
-                                    .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                    .foregroundColor(.white)
-                                
-                                Spacer()
-                                
-                                if alarm.name == selectedAlarm {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                }
-                            }
-                            .padding()
-                            .background(RoundedRectangle(cornerRadius: 15).fill(Color.white.opacity(0.1)))
-                            .onTapGesture {
+                            Button {
                                 selectedAlarm = alarm.name
                                 alarmViewModel.playSound(alarmSound: alarm)
+                            } label: {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(alarm.name)
+                                            .font(LuminousType.body(15, weight: .semibold))
+                                            .foregroundStyle(LuminousPalette.textPrimary)
+
+                                        Text(alarm.name == selectedAlarm ? "Selected for wake up" : "Tap to preview")
+                                            .font(LuminousType.body(13))
+                                            .foregroundStyle(LuminousPalette.textSecondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: alarm.name == selectedAlarm ? "checkmark.circle.fill" : "play.circle")
+                                        .font(.system(size: 22, weight: .semibold))
+                                        .foregroundStyle(alarm.name == selectedAlarm ? LuminousPalette.success : LuminousPalette.primary)
+                                }
+                                .padding(18)
+                                .luminousGlassCard(cornerRadius: 24, fillColor: LuminousPalette.surfaceLow)
                             }
+                            .buttonStyle(.plain)
                         }
                     }
-                    .padding()
+                    .padding(.bottom, 12)
                 }
-                
-                // Done button to dismiss the selection view
-                Button(action: {
-                    // Dismiss logic or binding state changes
+
+                LuminousPrimaryButton(title: "Done") {
                     AudioPlayer.shared.stopPlayAlarm()
                     dismiss()
-                }) {
-                    Text("Done")
-                        .font(.system(size: 16, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(RoundedRectangle(cornerRadius: 15).fill(Color.green))
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
             }
+            .padding(.horizontal, 16)
+            .padding(.top, 18)
+            .padding(.bottom, 24)
         }
         .onAppear {
             AudioPlayer.shared.isPlayAlarm = true

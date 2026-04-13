@@ -1,112 +1,75 @@
-//
-//  ControlButtonView.swift
-//  MusicSleep
-//
-//  Created by QuangHo on 13/10/24.
-//
-
-import SwiftUI
-
 import SwiftUI
 
 struct MediaControlView: View {
     @ObservedObject var audioPlayer = AudioPlayer.shared
-    @State private var animate = false
-    @State private var animateGradient = false
 
     var body: some View {
-        ZStack {
-            VStack {
-                HStack(spacing: 30) {
-                    // Shuffle Button
-                    Button(action: {
-                        audioPlayer.toggleShuffle()
-                    }) {
-                        Image(systemName: audioPlayer.isShuffleEnabled ? "shuffle.circle.fill" : "shuffle")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    
-                    // Previous Button
-                    Button(action: {
-                        audioPlayer.previousTrack()
-                    }) {
-                        Image(systemName: "backward.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    
-                    // Play/Pause Button
-                    Button(action: {
-                        withAnimation {
-                            audioPlayer.togglePlayPause()
-                        }
-                        
-                    }) {
-                        Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
-                            .font(.system(size: 25))
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 60)
-                            .background(LinearGradient(gradient: Gradient(colors: [.purple, .blue]),
-                                                       startPoint: .top, endPoint: .bottom))
-                            .clipShape(Circle())
-                            .shadow(radius: 5)
-                    }
-                    
-                    // Next Button
-                    Button(action: {
-                        audioPlayer.nextTrack()
-                    }) {
-                        Image(systemName: "forward.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
-                    }
-                    
-                    // Repeat Button
-                    Button(action: {
-                        audioPlayer.toggleRepeat()
-                    }) {
-                        Image(systemName: audioPlayer.isRepeatEnabled ? "repeat.circle.fill" : "repeat")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
-                    }
+        VStack(spacing: 14) {
+            HStack(spacing: 22) {
+                controlButton(icon: audioPlayer.isShuffleEnabled ? "shuffle.circle.fill" : "shuffle") {
+                    audioPlayer.toggleShuffle()
                 }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 10)
-                
-                Text(audioPlayer.currentTrack?.name ?? "Unknown Track")
-                    .font(.system(size: 13, weight: .bold, design: .monospaced))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal)
+
+                controlButton(icon: "backward.fill") {
+                    audioPlayer.previousTrack()
+                }
+
+                Button {
+                    audioPlayer.togglePlayPause()
+                } label: {
+                    Image(systemName: audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(Color(red: 53 / 255, green: 20 / 255, blue: 79 / 255))
+                        .frame(width: 72, height: 72)
+                        .background(
+                            Circle()
+                                .fill(LuminousPalette.primaryGradient)
+                                .shadow(color: LuminousPalette.primary.opacity(0.34), radius: 26, x: 0, y: 14)
+                        )
+                }
+                .buttonStyle(.plain)
+
+                controlButton(icon: "forward.fill") {
+                    audioPlayer.nextTrack()
+                }
+
+                controlButton(icon: audioPlayer.isRepeatEnabled ? "repeat.circle.fill" : "repeat") {
+                    audioPlayer.toggleRepeat()
+                }
             }
-            
+
+            Text(audioPlayer.currentTrack?.name ?? "Waiting for a selected track")
+                .font(LuminousType.body(14, weight: .semibold))
+                .foregroundStyle(LuminousPalette.textPrimary)
+                .lineLimit(1)
+
+            Text(audioPlayer.currentTrack?.nameOfTracklist ?? "Choose a tracklist to begin")
+                .font(LuminousType.body(12))
+                .foregroundStyle(LuminousPalette.textSecondary)
+                .lineLimit(1)
         }
-        .onAppear {
-            if audioPlayer.isPlaying {
-                animate = true
-            }
+        .padding(.horizontal, 18)
+        .padding(.vertical, 20)
+        .luminousGlassCard(cornerRadius: 30, fillColor: LuminousPalette.surfaceLow)
+    }
+
+    private func controlButton(icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(LuminousPalette.textPrimary)
+                .frame(width: 44, height: 44)
+                .background(
+                    Circle()
+                        .fill(LuminousPalette.surfaceHigh)
+                        .overlay(Circle().stroke(LuminousPalette.ghostBorder, lineWidth: 1))
+                )
         }
-        .onChange(of: audioPlayer.isPlaying) { newValue in
-            animate = newValue
-        }
+        .buttonStyle(.plain)
     }
 }
 
-
 struct WrapperMediaControlView: View {
-    @State var isPlaying: Bool = false
     var body: some View {
         MediaControlView()
     }

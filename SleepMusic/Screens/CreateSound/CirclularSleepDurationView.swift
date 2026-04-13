@@ -1,152 +1,206 @@
-//
-//  CirclularSleepDurationView.swift
-//  SleepMusic
-//
-//  Created by QuangHo on 21/10/24.
-//
-
 import SwiftUI
 
 struct CircularSleepDurationView: View {
-    @Binding var startTime: Double // Start time in hours (0 to 24)
-    @Binding var endTime: Double   // End time in hours (0 to 24)
-    
-    var sleepDuration: Double {
-        let duration = endTime - startTime
-        return duration >= 0 ? duration : (24 + duration)
-    }
-    
+    @Binding var bedtime: Date
+    @Binding var wakeupTime: Date
+
+    private let calendar = Calendar.current
+
     var body: some View {
         GeometryReader { geometry in
-            let size = geometry.size.width // Use the width of the available space
-            let center = CGPoint(x: size / 2, y: size / 2)
-            let radius = size / 2
-            
+            let size = min(geometry.size.width, geometry.size.height)
+            let lineWidth = size * 0.1
+
             ZStack {
-                // Background circle
-                Image("clockhands_bg")
-                    .resizable()
-                    .scaledToFill()
-                    .scaleEffect(0.9)
-                    .frame(width: size, height: size)
-                    .clipped()
-                
                 Circle()
-                    .stroke(lineWidth: 15)
-                    .opacity(0.2)
-                    .foregroundColor(.purple)
-                    .frame(width: size, height: size)
-                
-                // Progress arc
-                Circle()
-                    .trim(from: startAngle / 360, to: endAngle / 360)
-                    .stroke(style: StrokeStyle(lineWidth: 15, lineCap: .butt, lineJoin: .round))
-                    .foregroundColor(.purple)
-                    .rotationEffect(.degrees(-90))
-                    .frame(width: size, height: size)
-                
-                // Start handle
-                Circle()
-                    .fill(Color.white)
-                    .frame(width: 30, height: 30)
-                    .position(getHandlePosition(size: size, time: startTime))
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                let touchPoint = CGPoint(x: value.location.x, y: value.location.y)
-                                let angle = angleFrom(center: center, to: touchPoint)
-                                let newTime = angle / 360 * 24
-                                self.startTime = newTime
-                            }
+                    .fill(
+                        RadialGradient(
+                            colors: [
+                                LuminousPalette.surfaceContainer.opacity(0.98),
+                                LuminousPalette.surfaceLow.opacity(0.96),
+                                Color.black.opacity(0.92)
+                            ],
+                            center: .center,
+                            startRadius: 12,
+                            endRadius: size * 0.55
+                        )
                     )
-                
-                // End handle
+
                 Circle()
-                    .fill(Color.white)
-                    .frame(width: 30, height: 30)
-                    .position(getHandlePosition(size: size, time: endTime))
-                    .gesture(
-                        DragGesture()
-                            .onChanged { value in
-                                let touchPoint = CGPoint(x: value.location.x, y: value.location.y)
-                                let angle = angleFrom(center: center, to: touchPoint)
-                                let newTime = angle / 360 * 24
-                                self.endTime = newTime
-                            }
-                    )
-                
-                // Sleep duration text
-                VStack {
-                    Text(String(format: "%.0fhr %.0fmin", floor(sleepDuration), (sleepDuration - floor(sleepDuration)) * 60))
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text("Sleep duration")
-                        .font(.caption)
-                        .foregroundColor(.gray)
+                    .stroke(LuminousPalette.surfaceHigh.opacity(0.65), lineWidth: lineWidth)
+
+                SleepDurationArc(
+                    startFraction: bedtimeFraction,
+                    endFraction: wakeupFraction
+                )
+                .stroke(
+                    AngularGradient(
+                        colors: [LuminousPalette.primary, LuminousPalette.secondary],
+                        center: .center
+                    ),
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .shadow(color: LuminousPalette.primary.opacity(0.26), radius: 24, x: 0, y: 0)
+
+                handle(for: bedtimeFraction, size: size, glow: LuminousPalette.primary)
+                    .gesture(handleDrag(isBedtime: true, size: size))
+
+                handle(for: wakeupFraction, size: size, glow: LuminousPalette.secondary)
+                    .gesture(handleDrag(isBedtime: false, size: size))
+
+                VStack(spacing: 10) {
+                    Text(durationString)
+                        .font(LuminousType.display(size * 0.19, weight: .bold))
+                        .foregroundStyle(LuminousPalette.textPrimary)
+
+                    Text("HOURS SLEEP")
+                        .font(LuminousType.label(size * 0.04, weight: .bold))
+                        .tracking(2)
+                        .foregroundStyle(LuminousPalette.textSecondary)
+
+                    Text("\(formattedTime(bedtime)) - \(formattedTime(wakeupTime))")
+                        .font(LuminousType.body(size * 0.05))
+                        .foregroundStyle(LuminousPalette.textSecondary)
                 }
             }
             .frame(width: size, height: size)
         }
-        .aspectRatio(1, contentMode: .fit) // Maintain a square aspect ratio
+        .aspectRatio(1, contentMode: .fit)
     }
-    
-    // Computed properties for start and end angles
-    var startAngle: Double {
-        return startTime / 24 * 360
+
+    private var bedtimeFraction: Double {
+        dateToFraction(bedtime)
     }
-    
-    var endAngle: Double {
-        // Adjust for times that cross midnight
-        let angle = endTime / 24 * 360
-        return angle >= startAngle ? angle : angle + 360
+
+    private var wakeupFraction: Double {
+        dateToFraction(wakeupTime)
     }
-    
-    // Function to get the position of the handle based on time
-    func getHandlePosition(size: CGFloat, time: Double) -> CGPoint {
-        let angle = time / 24 * 360 - 90 // Adjust for rotation
-        let radians = angle * .pi / 180
-        
-        let radius = size / 2
-        let x = radius * cos(radians) + radius
-        let y = radius * sin(radians) + radius
-        
-        return CGPoint(x: x, y: y)
+
+    private var sleepDuration: TimeInterval {
+        let start = bedtime
+        let end = wakeupTime >= bedtime ? wakeupTime : wakeupTime.addingTimeInterval(24 * 60 * 60)
+        return end.timeIntervalSince(start)
     }
-    
-    // Function to calculate the angle between the center and the touch point
-    func angleFrom(center: CGPoint, to point: CGPoint) -> Double {
+
+    private var durationString: String {
+        let totalMinutes = Int(round(sleepDuration / 60))
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        return String(format: "%02d:%02d", hours, minutes)
+    }
+
+    private func handle(for fraction: Double, size: CGFloat, glow: Color) -> some View {
+        let point = point(for: fraction, size: size)
+
+        return Circle()
+            .fill(Color.white)
+            .frame(width: size * 0.09, height: size * 0.09)
+            .shadow(color: glow.opacity(0.34), radius: 24, x: 0, y: 0)
+            .position(point)
+    }
+
+    private func handleDrag(isBedtime: Bool, size: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 0)
+            .onChanged { value in
+                let fraction = angleFraction(for: value.location, size: size)
+                let updatedDate = fractionToDate(fraction, reference: isBedtime ? bedtime : wakeupTime)
+
+                if isBedtime {
+                    bedtime = updatedDate
+                } else {
+                    wakeupTime = updatedDate
+                }
+            }
+    }
+
+    private func point(for fraction: Double, size: CGFloat) -> CGPoint {
+        let angle = (fraction * 360 - 90) * .pi / 180
+        let radius = size / 2 - size * 0.05
+        let center = CGPoint(x: size / 2, y: size / 2)
+        return CGPoint(
+            x: center.x + radius * cos(angle),
+            y: center.y + radius * sin(angle)
+        )
+    }
+
+    private func angleFraction(for point: CGPoint, size: CGFloat) -> Double {
+        let center = CGPoint(x: size / 2, y: size / 2)
         let dx = point.x - center.x
         let dy = point.y - center.y
-        
         var angle = atan2(dy, dx) * 180 / .pi
-        if angle < 0 { angle += 360 }
-        
-        // Adjust for circle's rotation (-90 degrees)
-        angle = (angle - 270).truncatingRemainder(dividingBy: 360)
-        if angle < 0 { angle += 360 }
-        
-        return angle
+        angle += 90
+
+        if angle < 0 {
+            angle += 360
+        }
+
+        return angle / 360
+    }
+
+    private func dateToFraction(_ date: Date) -> Double {
+        let components = calendar.dateComponents([.hour, .minute], from: date)
+        let hour = Double(components.hour ?? 0)
+        let minute = Double(components.minute ?? 0) / 60
+        return (hour + minute) / 24
+    }
+
+    private func fractionToDate(_ fraction: Double, reference: Date) -> Date {
+        let totalMinutes = Int(round(fraction * 24 * 60)) % (24 * 60)
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+        return calendar.date(
+            bySettingHour: hours,
+            minute: minutes,
+            second: 0,
+            of: reference
+        ) ?? reference
+    }
+
+    private func formattedTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: date)
     }
 }
 
+private struct SleepDurationArc: Shape {
+    var startFraction: Double
+    var endFraction: Double
+
+    func path(in rect: CGRect) -> Path {
+        let startDegrees = startFraction * 360 - 90
+        var endDegrees = endFraction * 360 - 90
+
+        if endDegrees <= startDegrees {
+            endDegrees += 360
+        }
+
+        let radius = min(rect.width, rect.height) / 2 - min(rect.width, rect.height) * 0.05
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+
+        var path = Path()
+        path.addArc(
+            center: center,
+            radius: radius,
+            startAngle: .degrees(startDegrees),
+            endAngle: .degrees(endDegrees),
+            clockwise: false
+        )
+        return path
+    }
+}
 
 struct WrapperCircularSleepDurationView: View {
-    @State var startTime: Double = 0.0
-    @State var endTime: Double = 8.0
+    @State var bedtime = Calendar.current.date(bySettingHour: 23, minute: 0, second: 0, of: Date()) ?? Date()
+    @State var wakeupTime = Calendar.current.date(bySettingHour: 7, minute: 45, second: 0, of: Date()) ?? Date()
+
     var body: some View {
-        GeometryReader { geometry in
-            let screenWidth = geometry.size.width
-            let desiredSize = screenWidth * 0.6 // 60% of screen width
-            
-            VStack {
-                CircularSleepDurationView(startTime: $startTime, endTime: $endTime)
-                    .frame(width: desiredSize, height: desiredSize)
-            }
-            .frame(width: geometry.size.width, height: geometry.size.height)
-        }
+        CircularSleepDurationView(bedtime: $bedtime, wakeupTime: $wakeupTime)
+            .padding()
+            .background(LuminousBackground())
     }
 }
+
 #Preview {
     WrapperCircularSleepDurationView()
 }

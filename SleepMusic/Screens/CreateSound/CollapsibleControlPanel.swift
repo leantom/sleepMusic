@@ -2,107 +2,86 @@ import SwiftUI
 import FirebaseAnalytics
 
 struct CollapsibleControlPanel: View {
-    @State private var isExpanded: Bool = false // Track whether the panel is expanded or collapsed
     @ObservedObject var audioMixer: AudioMixer
     @Binding var isRelaxingMusicViewPresented: Bool
     @Binding var isSavedViewPresented: Bool
-    
-    @State var isPlaying: Bool = false
-    @State var isAnimateBlink = false
+
     var body: some View {
-        VStack {
-            HStack(spacing: 20) {
-                
-                Button(action: {
-                    // Toggle panel expansion
-                    withAnimation {
-                        isAnimateBlink = true
-                        isExpanded = true
-                        if audioMixer.isPlaying {
-                            audioMixer.stopMixedAudio()
-                        } else {
-                            audioMixer.restartMixedAudio()
-                        }
-                    }
-                }) {
-                    Image(systemName: audioMixer.isPlaying ? "pause.fill" : "play.fill")
-                        .foregroundColor(.white)
-                        .padding(12)
-                        .background(Color.purple)
-                        .clipShape(Circle())
-                }
-                
-                
-                // Check if the control panel is expanded
-                if isExpanded {
-                    // Additional Buttons (Visible when expanded)
-                    Button(action: {
-                        withAnimation {
-                            Analytics.logEvent("relaxing_music_view_opened", parameters: nil)
-                            isRelaxingMusicViewPresented.toggle()
-                        }
-                    }) {
-                        Image(systemName: "rectangle.3.offgrid.fill")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color(hex: "#EB78E3"))
-                            .clipShape(Circle())
-                    }
-                    
-                    Button(action: {
-                        withAnimation {
-                            if AudioMixer.shared.selectedSounds.count == 0 {
-                                return
-                            }
-                            isSavedViewPresented.toggle()
-                        }
-                    }) {
-                        Image(systemName: AudioMixer.shared.selectedSounds.count > 0 ? "arrow.down.heart.fill" : "heart")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                    
-                    // Close Button (To collapse the panel back)
-                    Button(action: {
-                        withAnimation {
-                            isExpanded = false
-                        }
-                    }) {
-                        Image(systemName: "xmark")
-                            .foregroundColor(.white)
-                            .padding(8)
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                }
+        HStack(spacing: 0) {
+            dockButton(icon: "waveform.path", title: "Player") {
+                Analytics.logEvent("relaxing_music_view_opened", parameters: nil)
+                isRelaxingMusicViewPresented = true
             }
-            .padding(8)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.white.opacity(0.4))
-            )
-            .padding(.horizontal, 30)
-            .transition(.move(edge: .bottom)) // Smooth transition effect
+
+            Spacer()
+
+            Button {
+                if audioMixer.isPlaying {
+                    audioMixer.stopMixedAudio()
+                } else {
+                    audioMixer.restartMixedAudio()
+                }
+            } label: {
+                Image(systemName: audioMixer.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(Color(red: 53 / 255, green: 20 / 255, blue: 79 / 255))
+                    .frame(width: 66, height: 66)
+                    .background(
+                        Circle()
+                            .fill(LuminousPalette.primaryGradient)
+                            .shadow(color: LuminousPalette.primary.opacity(0.34), radius: 28, x: 0, y: 12)
+                    )
+            }
+            .buttonStyle(.plain)
+            .offset(y: -16)
+
+            Spacer()
+
+            dockButton(icon: "square.and.arrow.down", title: "Save") {
+                guard !AudioMixer.shared.selectedSounds.isEmpty else { return }
+                isSavedViewPresented = true
+            }
         }
-        .overlay {
-            
-            BlinkingView(isStopAnimating: $isAnimateBlink)
-                .offset(x: 20, y: -20)
-                .frame(width: 20, height: 20)
+        .padding(.horizontal, 20)
+        .padding(.top, 16)
+        .padding(.bottom, 10)
+        .luminousGlassCard(cornerRadius: 30, fillColor: LuminousPalette.surfaceContainer)
+    }
+
+    private func dockButton(icon: String, title: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            VStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(LuminousPalette.textPrimary)
+                    .frame(width: 38, height: 38)
+                    .background(
+                        Circle()
+                            .fill(LuminousPalette.surfaceHigh)
+                            .overlay(Circle().stroke(LuminousPalette.ghostBorder, lineWidth: 1))
+                    )
+
+                Text(title.uppercased())
+                    .font(LuminousType.label(9, weight: .bold))
+                    .tracking(1.2)
+                    .foregroundStyle(LuminousPalette.textSecondary)
+            }
         }
-        
+        .buttonStyle(.plain)
     }
 }
 
 struct WrapperCollapsibleControlView: View {
-    @ObservedObject  var audioMixer: AudioMixer = AudioMixer(audioFileNames: [])
-    @State var isplaying: Bool = false
-    @State var isRelaxingMusicViewPresented: Bool = false  // New binding property
-    @State var isShow: Bool = false
+    @ObservedObject var audioMixer: AudioMixer = AudioMixer(audioFileNames: [])
+    @State var isRelaxingMusicViewPresented = false
+    @State var isShow = false
+
     var body: some View {
-        CollapsibleControlPanel(audioMixer: audioMixer, isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented, isSavedViewPresented: $isShow)
+        CollapsibleControlPanel(
+            audioMixer: audioMixer,
+            isRelaxingMusicViewPresented: $isRelaxingMusicViewPresented,
+            isSavedViewPresented: $isShow
+        )
     }
 }
 
