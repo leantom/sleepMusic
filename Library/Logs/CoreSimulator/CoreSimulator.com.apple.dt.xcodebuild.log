@@ -1,0 +1,40 @@
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Unable to deliver request ({
+	    "developer_dir" = "/Applications/Xcode.app/Contents/Developer";
+	    request = "set_developer_dir";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Unable to deliver request ({
+	    request = "get_runtime_sdk_map";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Failed to load runtime matching data from server: Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedDescription=CoreSimulatorService connection became invalid.  Simulator services will no longer be available.}
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Unable to deliver request ({
+	    request = "notification_subscription";
+	    "set_path" = "/Users/quangho/Library/Developer/CoreSimulator/Devices";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: simdiskimaged returned error (invalid), marking disconnected.
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Could not get list of trusted mount directories: Error Domain=com.apple.CoreSimulator.SimError Code=410 "The service used to manage runtime disk images (simdiskimaged) crashed or is not responding" UserInfo={NSLocalizedDescription=The service used to manage runtime disk images (simdiskimaged) crashed or is not responding}
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Could not kickstart simdiskimaged; SimDiskImageManager services will not be available: Error Domain=NSPOSIXErrorDomain Code=53 "Software caused connection abort" UserInfo={NSLocalizedDescription=Error returned in reply from CoreSimulatorService: Connection invalid}
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: simdiskimaged returned error (invalid), marking disconnected.
+Apr 13 11:07:09 Mac-Studio com.apple.dt.xcodebuild[35881] <Error>: Unable to deliver request ({
+	    request = "notification_subscription";
+	    "set_path" = "/Users/quangho/Library/Developer/CoreSimulator/Devices";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:12:55 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Unable to deliver request ({
+	    "developer_dir" = "/Applications/Xcode.app/Contents/Developer";
+	    request = "set_developer_dir";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Unable to deliver request ({
+	    request = "notification_subscription";
+	    "set_path" = "/Users/quangho/Library/Developer/CoreSimulator/Devices";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Could not kickstart simdiskimaged; SimDiskImageManager services will not be available: Error Domain=NSPOSIXErrorDomain Code=53 "Software caused connection abort" UserInfo={NSLocalizedDescription=Error returned in reply from CoreSimulatorService: Connection invalid}
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Unable to deliver request ({
+	    request = "get_runtime_sdk_map";
+	}) because we are not connected to CoreSimulatorService.
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: simdiskimaged returned error (invalid), marking disconnected.
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: simdiskimaged returned error (invalid), marking disconnected.
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Could not get list of trusted mount directories: Error Domain=com.apple.CoreSimulator.SimError Code=410 "The service used to manage runtime disk images (simdiskimaged) crashed or is not responding" UserInfo={NSLocalizedDescription=The service used to manage runtime disk images (simdiskimaged) crashed or is not responding}
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Failed to load runtime matching data from server: Error Domain=NSPOSIXErrorDomain Code=61 "Connection refused" UserInfo={NSLocalizedDescription=CoreSimulatorService connection became invalid.  Simulator services will no longer be available.}
+Apr 13 11:12:56 Mac-Studio com.apple.dt.xcodebuild[50504] <Error>: Unable to deliver request ({
+	    request = "notification_subscription";
+	    "set_path" = "/Users/quangho/Library/Developer/CoreSimulator/Devices";
+	}) because we are not connected to CoreSimulatorService.
